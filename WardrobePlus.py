@@ -3,9 +3,18 @@ app = Flask(__name__)
 
 clothes = []
 clothes_guid = 0
-
+def getClothing(guid):
+    global clothes    
+    for i in clothes:
+        if guid == i.guid:
+            return i
 companions = []
 companion_guid = 0
+def getCompanion(guid):
+    global companions    
+    for i in companions:
+        if guid == i.guid:
+            return i
 
 class Companion:
     guid_counter = 0
@@ -15,10 +24,13 @@ class Companion:
         Companion.guid_counter += 1
 
 class Clothing:
+    guid_counter = 0
     def __init__(self, name):
         self.name = str(name)
         self.companion = None
         self.compatible_clothes = []
+        self.guid = Clothing.guid_counter
+        Clothing.guid_counter += 1
     def pair(self, other):
         self.compatible_clothes.append(other)
     def addCompanion(self, comp):
@@ -43,7 +55,7 @@ def edit_wardrobe():
 
 @app.route('/begin_session')
 def begin_session():
-    return 'BEGIN SESSION'
+    return redirect(url_for("sessionCheckout"))
 
 @app.route('/add_clothing')
 def add_clothing():
@@ -80,5 +92,40 @@ def new_clothing():
     clothes.append(new_clothing)
     new_clothing.addCompanion(companion)
     return redirect(url_for("edit_wardrobe"))
+
+@app.route('/session#checkout')
+def sessionCheckout():
+    global clothes
+    if 'clothingGUID' in request.args:
+        clothingGUID = int(request.args['clothingGUID'])
+        #todo: extract getclothingbyguid
+        for i in clothes:
+            if clothingGUID == i.guid:
+                i.removeCompanion()
+    return render_template('session.html', clothes=clothes)
+
+@app.route('/session#return')
+def sessionReturn():
+    global clothes, companions
+    
+    if 'clothingGUID' in request.args:
+        clothingGUID = int(request.args['clothingGUID'])
+        #todo: extract getclothingbyguid
+        for i in clothes:
+            if clothingGUID == i.guid:
+                return render_template('return_clothing.html', clothing=i, companions=companions)
+    return render_template('session.html', clothes=clothes)
+
+@app.route('/session#returned', methods=['GET', 'POST'])
+def sessionReturned():
+    global clothes
+    print "@@@@@@@@@@@@@@@@@@"
+    companion_guid = int(request.form['companion_guid'])
+    clothing_guid = int(request.args['clothing_guid'])
+    print "##################"
+    companion = getCompanion(companion_guid)
+    clothing = getClothing(clothing_guid)
+    clothing.addCompanion(companion)
+    return redirect(url_for('sessionCheckout'))
 if __name__ == '__main__':
     app.run('0.0.0.0', debug=True)

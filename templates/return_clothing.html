@@ -1,0 +1,14 @@
+Returning <b>{{ clothing.name }}</b>
+<form action="{{ url_for("sessionReturned", clothing_guid=clothing.guid) }}" method="post">
+Companion: 
+<select name="companion_guid">
+  {% for i in companions %}
+  {% if not i.paired %}
+  <option value="{{ i.guid }}">Companion #{{ i.guid }}</option>
+  {% endif %}
+  {% endfor %}
+  <option value="-1">New Companion</option>
+</select>
+<br />
+<input type="submit" value="Submit" />
+</form>

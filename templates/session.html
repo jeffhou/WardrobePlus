@@ -1,0 +1,18 @@
+<a href="{{ url_for("sessionCheckout") }}">Checkout</a>
+<a href="{{ url_for("sessionReturn") }}">Return</a>
+
+<div style="border:1px solid black">
+  {% for i in clothes %}
+    {% if i.hasCompanion() %}
+      <a href="{{ url_for("sessionCheckout", clothingGUID=i.guid) }}">{{ i.name }}</a>
+    {% endif %}
+  {% endfor %}
+</div>
+
+<div style="border:1px solid black">
+  {% for i in clothes %}
+    {% if not i.hasCompanion() %}
+      <a href="{{ url_for("sessionReturn", clothingGUID=i.guid) }}">{{ i.name }}</a>
+    {% endif %}
+  {% endfor %}
+</div>
