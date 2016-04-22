@@ -6,3 +6,13 @@
 .form .form-title{
   font: 16px / 1.4 Helvetica, arial, nimbussansl, liberationsans, freesans, clean, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
 }
+.session-inventory-box {
+  border: 1px solid black;
+  width: 45%;
+  float: left;
+  margin: 5px;
+}
+
+.session-inventory-items {
+  padding: 5px;
+}

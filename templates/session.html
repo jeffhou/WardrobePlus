@@ -1,18 +1,34 @@
-<a href="{{ url_for("sessionCheckout") }}">Checkout</a>
-<a href="{{ url_for("sessionReturn") }}">Return</a>
-
-<div style="border:1px solid black">
+<link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+<div><a href="{{ url_for("index") }}">End Session</a></div>
+<div class="session-inventory-box">
+  <div style="font-weight: bold">In Wardrobe</div>
+  <div class="session-inventory-items">
   {% for i in clothes %}
     {% if i.hasCompanion() %}
-      <a href="{{ url_for("sessionCheckout", clothingGUID=i.guid) }}">{{ i.name }}</a>
+      <div style="padding: 0px 4px 0px 4px;"><a href="{{ url_for("sessionCheckout", clothingGUID=i.guid) }}">{{ i.name }}</a></div>
     {% endif %}
   {% endfor %}
+  </div>
 </div>
 
-<div style="border:1px solid black">
+<div class="session-inventory-box">
+  <div style="font-weight: bold">Checked Out</div>
+  <div class="session-inventory-items">
   {% for i in clothes %}
     {% if not i.hasCompanion() %}
-      <a href="{{ url_for("sessionReturn", clothingGUID=i.guid) }}">{{ i.name }}</a>
+      <div style="padding: 0px 4px 0px 4px;"><a href="{{ url_for("sessionReturn", clothingGUID=i.guid) }}">{{ i.name }}</a></div>
     {% endif %}
   {% endfor %}
+  </div>
+</div>
+
+<div class="session-inventory-box">
+  <div style="font-weight: bold">Recommended Items</div>
+  <div class="session-inventory-items">
+  {% for i in clothes %}
+    {% if not i.hasCompanion() %}
+      <div style="padding: 0px 4px 0px 4px;"><a href="{{ url_for("sessionReturn", clothingGUID=i.guid) }}">{{ i.name }}</a></div>
+    {% endif %}
+  {% endfor %}
+  </div>
 </div>
