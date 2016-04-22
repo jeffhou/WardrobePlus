@@ -8,6 +8,7 @@ def getClothing(guid):
     for i in clothes:
         if guid == i.guid:
             return i
+
 companions = []
 companion_guid = 0
 def getCompanion(guid):
@@ -93,6 +94,23 @@ def new_clothing():
     new_clothing.addCompanion(companion)
     return redirect(url_for("edit_wardrobe"))
 
+@app.route('/add_sample_set')
+def add_sample_set():
+    colors = ["Coral", "Black", "White", "Pink", "Blue", "Canary"]
+    styles = ["Shirt", "Pants", "OCBD", "Jacket", "Tie", "Hat"]
+    samples = []
+    for i in colors:
+        for j in styles:
+            samples.append(i + " " + j)
+
+    for i in samples:
+        companion = Companion()
+        companions.append(companion)
+        clothing = Clothing(i)
+        clothes.append(clothing)
+        clothing.addCompanion(companion)
+    return redirect(url_for("edit_wardrobe"))
+
 @app.route('/session#checkout')
 def sessionCheckout():
     global clothes
@@ -127,5 +145,6 @@ def sessionReturned():
     clothing = getClothing(clothing_guid)
     clothing.addCompanion(companion)
     return redirect(url_for('sessionCheckout'))
+
 if __name__ == '__main__':
     app.run('0.0.0.0', debug=True)
