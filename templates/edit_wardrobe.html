@@ -57,27 +57,88 @@
     font: 13px "museo-sans", Helvetica, Arial, sans-serif;
     text-transform: uppercase;
   }
+  .clothing-tag {
+    display: inline-block;
+    padding: 3px 5px;
+    border: 1px solid #555;
+    border-radius: 10px;
+    color: #555;
+    margin: 2px 2px;
+  }
+  #tag-container {
+    margin-bottom: 20px;
+    width: calc(100% - 300px);
+    display: inline-block;
+  }
+  input[type=text]{
+    width: 130px;
+    box-sizing: border-box;
+    border: 1px solid #444;
+    color: #444;
+    border-radius: 4px;
+    font-size: 13px;
+    background-color: white;
+    /*background-image: url('searchicon.png');*/
+    background-position: 10px 10px;
+    background-repeat: no-repeat;
+    padding: 10px 10px 10px 20px;
+    -webkit-transition: width 0.4s ease-in-out;
+    transition: width 0.4s ease-in-out;
+  }
 </style>
 <div id="sidenav">
   <a href="{{ url_for("index") }}">Main Menu</a>
   <a href="{{ url_for("add_clothing") }}">Add Clothing</a>
 </div>
 <div id="main">
-  <div class="center">
-  {% for i in clothes %}
-  <div class="clothing">
-    <div style="margin-top: 10px;border-bottom: 1px solid #444;padding: 15px 0px;">
-      {{ i.name }}
+  <div>
+    <div id="tag-container">
+      <div class="clothing-tag">shirt</div>
+      <div class="clothing-tag">pants</div>
+      <div class="clothing-tag">socks</div>
+      <div class="clothing-tag">ties</div>
+      <div class="clothing-tag">headwear</div>
+      <div class="clothing-tag">korean</div>
+      <div class="clothing-tag">shirt</div>
+      <div class="clothing-tag">pants</div>
+      <div class="clothing-tag">socks</div>
+      <div class="clothing-tag">ties</div>
+      <div class="clothing-tag">headwear</div>
+      <div class="clothing-tag">korean</div>
+      <div class="clothing-tag">shirt</div>
+      <div class="clothing-tag">pants</div>
+      <div class="clothing-tag">socks</div>
+      <div class="clothing-tag">ties</div>
+      <div class="clothing-tag">headwear</div>
+      <div class="clothing-tag">korean</div>
+      <div class="clothing-tag">shirt</div>
+      <div class="clothing-tag">pants</div>
+      <div class="clothing-tag">socks</div>
+      <div class="clothing-tag">ties</div>
+      <div class="clothing-tag">headwear</div>
+      <div class="clothing-tag">korean</div>
     </div>
-    <div style="margin-top: 15px">
-      <a href="#" class="cloth-button"><i class="fa fa-search"></i></a>
-      <a href="#" class="cloth-button"><i class="fa fa-pencil-square-o"></i></a>
-    </div>
-    <div style="margin-top: 5px">
-      <a href="#" class="cloth-button"><i class="fa fa-area-chart"></i></a>
-      <a href="#" class="cloth-button"><i class="fa fa-trash-o"></i></a>
+    <div style="display: inline-block; vertical-align: top">
+      <form>
+        <input type="text" name="search" placeholder="Search..">
+      </form>
     </div>
   </div>
-  {% endfor %}
+  <div>
+    {% for i in clothes %}
+    <div class="clothing">
+      <div style="margin-top: 10px;border-bottom: 1px solid #444;padding: 15px 0px;">
+        {{ i.name }}
+      </div>
+      <div style="margin-top: 15px">
+        <a href="#" class="cloth-button"><i class="fa fa-search"></i></a>
+        <a href="#" class="cloth-button"><i class="fa fa-pencil-square-o"></i></a>
+      </div>
+      <div style="margin-top: 5px">
+        <a href="#" class="cloth-button"><i class="fa fa-area-chart"></i></a>
+        <a href="#" class="cloth-button"><i class="fa fa-trash-o"></i></a>
+      </div>
+    </div>
+    {% endfor %}
   </div>
 </div>
