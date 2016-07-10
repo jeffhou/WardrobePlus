@@ -1,6 +1,5 @@
 <a href="{{ url_for("index") }}">Main Menu</a>
 <a href="{{ url_for("add_clothing") }}">Add Clothing</a>
-<a href="{{ url_for("add_companion") }}">Add Companion</a>
 <table>
   <tr>
     <td>Clothes</td>
@@ -9,20 +8,6 @@
   <tr>
     <td>
       {{ i.name }}
-    </td>
-  </tr>
-  {% endfor %}
-</table>
-
-
-<table>
-  <tr>
-    <td>Companions</td>
-  </tr>
-  {% for i in companions %}
-  <tr>
-    <td>
-      {{ i.guid }}
     </td>
   </tr>
   {% endfor %}
