@@ -47,7 +47,7 @@ class Clothing:
         self.companion = None
     def getCompanion(self):
         return self.companion
-    def hasCompanion(self):
+    def isInWardrobe(self):
         return self.companion != None
 
 @app.route('/')

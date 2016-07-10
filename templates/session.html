@@ -4,7 +4,7 @@
   <div style="font-weight: bold">In Wardrobe</div>
   <div class="session-inventory-items">
   {% for i in clothes %}
-    {% if i.hasCompanion() %}
+    {% if i.isInWardrobe() %}
       <div style="padding: 0px 4px 0px 4px;"><a href="{{ url_for("sessionCheckout", clothingGUID=i.guid) }}">{{ i.name }}</a></div>
     {% endif %}
   {% endfor %}
@@ -15,7 +15,7 @@
   <div style="font-weight: bold">Checked Out</div>
   <div class="session-inventory-items">
   {% for i in clothes %}
-    {% if not i.hasCompanion() %}
+    {% if not i.isInWardrobe() %}
       <div style="padding: 0px 4px 0px 4px;"><a href="{{ url_for("sessionReturn", clothingGUID=i.guid) }}">{{ i.name }}</a></div>
     {% endif %}
   {% endfor %}
@@ -26,7 +26,7 @@
   <div style="font-weight: bold">Recommended Items</div>
   <div class="session-inventory-items">
   {% for i in clothes %}
-    {% if not i.hasCompanion() %}
+    {% if not i.isInWardrobe() %}
       <div style="padding: 0px 4px 0px 4px;"><a href="{{ url_for("sessionReturn", clothingGUID=i.guid) }}">{{ i.name }}</a></div>
     {% endif %}
   {% endfor %}
