@@ -12,7 +12,11 @@ def getClothing(guid):
 companions = []
 companion_guid = 0
 def getCompanion(guid):
-    global companions    
+    global companions
+    if guid == -1:
+        comp = Companion()
+        companions.append(comp)
+        return comp
     for i in companions:
         if guid == i.guid:
             return i
@@ -35,6 +39,7 @@ class Clothing:
     def pair(self, other):
         self.compatible_clothes.append(other)
     def addCompanion(self, comp):
+        print comp
         self.companion = comp
         self.companion.paired = True
     def removeCompanion(self):
@@ -139,6 +144,7 @@ def sessionReturned():
     global clothes
     print "@@@@@@@@@@@@@@@@@@"
     companion_guid = int(request.form['companion_guid'])
+    print companion_guid
     clothing_guid = int(request.args['clothing_guid'])
     print "##################"
     companion = getCompanion(companion_guid)
