@@ -1,14 +1,54 @@
 <a href="{{ url_for("index") }}">Main Menu</a>
 <a href="{{ url_for("add_clothing") }}">Add Clothing</a>
-<table>
-  <tr>
-    <td>Clothes</td>
-  </tr>
-  {% for i in clothes %}
-  <tr>
-    <td>
-      {{ i.name }}
-    </td>
-  </tr>
-  {% endfor %}
-</table>
+<script src="https://use.fontawesome.com/8500ed540a.js"></script>
+<style>
+.clothing {
+      /* width: auto; */
+    color: #444;
+    /* background: bisque; */
+    margin: 0 5px 10px;
+    padding: 20px;
+    display: inline-block;
+    border-radius: 6px;
+    border: 1px solid black;
+    width: 12%;
+    text-align: center;
+    font: 16px "museo-sans", Helvetica, Arial, sans-serif;
+    text-transform: uppercase;
+    height: 120px;
+    vertical-align: middle;
+    font-weight: 700;
+    -webkit-font-smoothing: antialiased;
+    font-size: 16px;
+}
+.cloth-button{
+  background-color: #FFF;
+    border: 1px solid #444;
+    color: #444;
+    padding: 5px 18px;
+    margin: 0px 4px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 10px;
+    border-radius:30px;
+    
+}
+</style>
+<div>
+{% for i in clothes %}
+<div class="clothing">
+  <div style="margin-top: 10px;border-bottom: 1px solid #444;padding: 15px 0px;">
+    {{ i.name }}
+  </div>
+  <div style="margin-top: 15px">
+    <a href="#" class="cloth-button"><i class="fa fa-search"></i></a>
+    <a href="#" class="cloth-button"><i class="fa fa-pencil-square-o"></i></a>
+  </div>
+  <div style="margin-top: 5px">
+    <a href="#" class="cloth-button"><i class="fa fa-area-chart"></i></a>
+    <a href="#" class="cloth-button"><i class="fa fa-trash-o"></i></a>
+  </div>
+</div>
+{% endfor %}
+</div>
