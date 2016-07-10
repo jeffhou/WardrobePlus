@@ -1,5 +1,35 @@
-<a href="{{ url_for("begin_session") }}">Begin Session</a>
-<br />
-<a href="{{ url_for("edit_wardrobe") }}">Edit Wardrobe</a>
-<br />
-<a href="{{ url_for("add_sample_set") }}">Add Sample Set</a>
+<style>
+  a {
+    border: 1px solid black;
+    border-radius: 30px;
+    display: inline-block;
+    margin-bottom: 10px;
+    width: auto;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 10px 15px;
+    font: 16px "museo-sans", Helvetica, Arial, sans-serif;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: black;
+  }
+  #logo {
+    margin-bottom: 10px;
+    width: auto;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 10px 15px;
+    font: 45px "museo-sans", Helvetica, Arial, sans-serif;
+    
+    font-weight: 700;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: black;
+  }
+</style>
+<div style="text-align: center; position: relative; top: 50%; transform: translateY(-50%);">
+  <div id="logo">WARDROBE PLUS</div>
+  <div><a href="{{ url_for("begin_session") }}">Begin Session</a></div>
+  <div><a href="{{ url_for("edit_wardrobe") }}">Edit Wardrobe</a></div>
+  <div><a href="{{ url_for("add_sample_set") }}">Add Sample Set</a></div>
+</div>
