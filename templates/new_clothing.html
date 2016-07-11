@@ -3,21 +3,22 @@
   #tf {
     border: 1px solid #ccc;
     padding: 5px;
-}
-#editable {
-  padding: 3px;
-  margin: 0px 3px 3px;
-  height:1em;background-color:none;display:inline-block;vertical-align:top
-}
-.tag {
-  vertical-align:top;
-  border: 1px solid #48f;
-  color: #48f;
-  display: inline-block;
-  margin: 0px 3px 3px;
-  padding: 2px 4px;
-  border-radius: 7px;
-}
+    cursor: text;
+  }
+  #editable {
+    padding: 3px;
+    margin: 0px 3px 3px;
+    height:1em;background-color:none;display:inline-block;vertical-align:top
+  }
+  .tag {
+    vertical-align:top;
+    border: 1px solid #48f;
+    color: #48f;
+    display: inline-block;
+    margin: 0px 3px 3px;
+    padding: 2px 4px;
+    border-radius: 7px;
+  }
 
 </style>
 <div class="form">
@@ -42,14 +43,17 @@
 <script>
   var tf = document.getElementById("tf");
 
-tf.onkeyup = function(){
-if(tf.innerHTML.indexOf(",") > -1) {
-  var editable = document.getElementById("editable");
-	tf.innerHTML = tf.innerHTML.substring(0, tf.innerHTML.indexOf(editable.outerHTML)) + "<div class=\"tag\" contenteditable=\"false\">" + editable.innerHTML.substring(0, editable.innerHTML.indexOf(",")) + "</div><div contenteditable=\"true\" id=\"editable\"></div>";
-  var editable = document.getElementById("editable");
-  editable.innerHTML = "";
-  console.log(editable);
-  tf.children[tf.children.length - 1].focus();
+  tf.onkeyup = function(){
+  if(tf.innerHTML.indexOf(",") > -1) {
+    var editable = document.getElementById("editable");
+  	tf.innerHTML = tf.innerHTML.substring(0, tf.innerHTML.indexOf(editable.outerHTML)) + "<div class=\"tag\" contenteditable=\"false\">" + editable.innerHTML.substring(0, editable.innerHTML.indexOf(",")) + "</div><div contenteditable=\"true\" id=\"editable\"></div>";
+    var editable = document.getElementById("editable");
+    editable.innerHTML = "";
+    console.log(editable);
+    tf.children[tf.children.length - 1].focus();
+    }
+  };
+  tf.onclick = function(){
+    tf.children[tf.children.length - 1].focus();
   }
-};
 </script>

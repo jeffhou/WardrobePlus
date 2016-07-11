@@ -213,6 +213,9 @@ btn.onclick = function() {
 window.onclick = function(event) {
     if (event.target == modal || event.target == cancel) {
         modal.style.display = "none";
+        var tf = document.getElementById("tf");
+        tf.innerHTML = "<div contenteditable=\"true\" style = \"width:100%;\" id=\"editable\"></div>";
+        // TODO: clear tags completely
     }
 }
 </script>
