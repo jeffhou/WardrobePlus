@@ -43,7 +43,10 @@
     float: left;
     padding-left: 25px;
   }
-  #sidenav a{
+  #sidenav a, #sidenav button{
+    background-color: white;
+    text-align: left;
+    cursor: pointer;
     display: block;
     padding: 4px 10px 5px 25px;
     margin-left: -20px;
@@ -52,6 +55,9 @@
     border-top: solid black 1px;
     border-right: solid black 1px;
     border-bottom: solid black 1px;
+    border-left: none;
+    width: 100%;
+    box-sizing: initial;
     text-decoration: none;
     color: black;
     font: 13px "museo-sans", Helvetica, Arial, sans-serif;
@@ -127,7 +133,7 @@
 </style>
 <div id="sidenav">
   <a href="{{ url_for("index") }}">Main Menu</a>
-  <a href="#" id="add-clothing">Add Clothing</a>
+  <button id="add-clothing">Add Clothing</a>
 </div>
 <div id="main">
   <div>
@@ -196,6 +202,8 @@ var modal = document.getElementById('myModal');
 // Get the button that opens the modal
 var btn = document.getElementById("add-clothing");
 
+var cancel = document.getElementById("cancel");
+
 // When the user clicks the button, open the modal
 btn.onclick = function() {
     modal.style.display = "block";
@@ -203,12 +211,8 @@ btn.onclick = function() {
 
 // When the user clicks anywhere outside of the modal, close it
 window.onclick = function(event) {
-    if (event.target == modal) {
+    if (event.target == modal || event.target == cancel) {
         modal.style.display = "none";
-    }
-    if (event.target != modal) {
-        var a = document.getElementById("myBtn");
-        a.innerText= event.target + event.target.id + event.target.classList;
     }
 }
 </script>
