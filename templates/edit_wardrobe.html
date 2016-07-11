@@ -215,6 +215,8 @@ window.onclick = function(event) {
         modal.style.display = "none";
         var tf = document.getElementById("tf");
         tf.innerHTML = "<div contenteditable=\"true\" style = \"width:100%;\" id=\"editable\"></div>";
+        var name_field = document.getElementById("name-field");
+        name_field.value = "";  
         // TODO: clear tags completely
     }
 }
