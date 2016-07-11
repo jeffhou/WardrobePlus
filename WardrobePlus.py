@@ -35,12 +35,6 @@ def edit_wardrobe():
 def begin_session():
     return redirect(url_for("sessionCheckout"))
 
-@app.route('/add_clothing')
-def add_clothing():
-    global clothes_guid, clothes
-    return render_template('new_clothing.html')
-    #return redirect(url_for("edit_wardrobe"))
-
 @app.route('/new_clothing', methods=['POST'])
 def new_clothing():
     clothing_name = request.form['name']
