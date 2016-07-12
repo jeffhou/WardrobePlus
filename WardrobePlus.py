@@ -1,6 +1,7 @@
 from flask import Flask, render_template, redirect, url_for, request
 app = Flask(__name__)
 
+
 clothes = []
 clothes_guid = 0
 def getClothing(guid):
@@ -39,7 +40,7 @@ def begin_session():
 def add_clothing():
     global clothes_guid, clothes
     return render_template('new_clothing.html')
-    #return redirect(url_for("edit_wardrobe"))
+   
 
 @app.route('/new_clothing', methods=['POST'])
 def new_clothing():
@@ -47,6 +48,23 @@ def new_clothing():
     new_clothing = Clothing(clothing_name)
     clothes.append(new_clothing)
     return redirect(url_for("edit_wardrobe"))
+
+@app.route('/remove_clothing', methods=['GET', 'POST']) 
+def remove_clothing():
+    global clothes_guid, clothes
+    return render_template('delete_clothing.html', clothes=clothes)
+   
+
+@app.route('/delete_clothing', methods=['GET', 'POST'])
+def delete_clothing(): 
+   
+    select = request.form.get('comp_select') #this is now working
+    
+    select = int(select)
+
+    clothes.remove(getClothing(select))
+    return redirect(url_for("edit_wardrobe"))
+
 
 @app.route('/add_sample_set')
 def add_sample_set():
@@ -81,8 +99,9 @@ def sessionReturn():
         #todo: extract getclothingbyguid
         for i in clothes:
             if clothingGUID == i.guid:
-                i.inWardrobe = True
+                i.inWardrobe = True 
     return render_template('session.html', clothes=clothes)
 
 if __name__ == '__main__':
     app.run('0.0.0.0', debug=True, port=8080)
+
