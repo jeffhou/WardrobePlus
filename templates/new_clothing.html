@@ -26,7 +26,7 @@
   <form action="{{ url_for("new_clothing") }}" method="post">
     <div>
       <div style="inline-block">Name:</div>
-      <div style="inline-block"><input type="text" name="name" id="name-field"/></div>
+      <div style="inline-block"><input type="text" name="name" id="name-field" /></div>
     </div>
     <div>
       <div>Tags (comma separated):</div>
@@ -34,6 +34,7 @@
         <div contenteditable="true" style = "width:100%;" id="editable"></div>
       </div>
     </div>
+    <div style="background-color: pink"><input type="text" name="tags" id="hidden-tag-field" value=""/></div>
         
   <br />
   <input type="submit" value="Submit" />
@@ -45,11 +46,18 @@
 
   tf.onkeyup = function(){
   if(tf.innerHTML.indexOf(",") > -1) {
+   
+    
     var editable = document.getElementById("editable");
+    console.log(editable.innerHTML);
+    var hidden_tag_field = document.getElementById("hidden-tag-field");
+    hidden_tag_field.value += editable.innerHTML;
   	tf.innerHTML = tf.innerHTML.substring(0, tf.innerHTML.indexOf(editable.outerHTML)) + "<div class=\"tag\" contenteditable=\"false\">" + editable.innerHTML.substring(0, editable.innerHTML.indexOf(",")) + "</div><div contenteditable=\"true\" id=\"editable\"></div>";
     var editable = document.getElementById("editable");
+    
+    console.log(editable.innerHTML);
     editable.innerHTML = "";
-    console.log(editable);
+    console.log(hidden_tag_field.outerHTML);
     tf.children[tf.children.length - 1].focus();
     }
   };
