@@ -1,6 +1,24 @@
-
 <script src="https://use.fontawesome.com/8500ed540a.js"></script>
 <style>
+  #tf {
+    border: 1px solid #ccc;
+    padding: 5px;
+    cursor: text;
+  }
+  #editable {
+    padding: 3px;
+    margin: 0px 3px 3px;
+    height:1em;background-color:none;display:inline-block;vertical-align:top
+  }
+  .tag {
+    vertical-align:top;
+    border: 1px solid #48f;
+    color: #48f;
+    display: inline-block;
+    margin: 0px 3px 3px;
+    padding: 2px 4px;
+    border-radius: 7px;
+  }
   .clothing {
     color: #444;
     margin: 0 5px 10px;
@@ -188,36 +206,76 @@
   </div>
 </div>
 <div id="myModal" class="modal">
-
   <!-- Modal content -->
   <div class="modal-content">
-    {% include 'new_clothing.html' %}
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+  <div class="form">
+    <div class="form-title">New Clothing</div>
+    <form action="{{ url_for("new_clothing") }}" method="post">
+      <div>
+        <div style="inline-block">Name:</div>
+        <div style="inline-block"><input type="text" name="name" id="name-field" /></div>
+      </div>
+      <div>
+        <div>Tags (comma separated):</div>
+        <div id="tf">
+          <div contenteditable="true" style = "width:100%;" id="editable"></div>
+        </div>
+      </div>
+      <div style="display: none"><input type="text" name="tags" id="hidden-tag-field" value=""/></div>
+          
+    <br />
+    <input type="submit" value="Submit" />
+    <input type="button" value="Cancel" id="cancel" />
+    </form>
+  </div>
+
   </div>
 
 </div>
 <script>
-// Get the modal
-var modal = document.getElementById('myModal');
-
-// Get the button that opens the modal
-var btn = document.getElementById("add-clothing");
-
-var cancel = document.getElementById("cancel");
-
-// When the user clicks the button, open the modal
-btn.onclick = function() {
-    modal.style.display = "block";
-}
-
-// When the user clicks anywhere outside of the modal, close it
-window.onclick = function(event) {
-    if (event.target == modal || event.target == cancel) {
-        modal.style.display = "none";
-        var tf = document.getElementById("tf");
-        tf.innerHTML = "<div contenteditable=\"true\" style = \"width:100%;\" id=\"editable\"></div>";
-        var name_field = document.getElementById("name-field");
-        name_field.value = "";  
-        // TODO: clear tags completely
+  // Get the modal
+  var modal = document.getElementById('myModal');
+  
+  // Get the button that opens the modal
+  var btn = document.getElementById("add-clothing");
+  
+  var cancel = document.getElementById("cancel");
+  
+  // When the user clicks the button, open the modal
+  btn.onclick = function() {
+      modal.style.display = "block";
+  }
+  
+  // When the user clicks anywhere outside of the modal, close it
+  window.onclick = function(event) {
+      if (event.target == modal || event.target == cancel) {
+          modal.style.display = "none";
+          var tf = document.getElementById("tf");
+          tf.innerHTML = "<div contenteditable=\"true\" style = \"width:100%;\" id=\"editable\"></div>";
+          var name_field = document.getElementById("name-field");
+          name_field.value = "";  
+          // TODO: clear tags completely
+      }
+  }
+  var tf = document.getElementById("tf");
+  
+  tf.onkeyup = function(){
+    if(tf.innerHTML.indexOf(",") > -1) {
+      var editable = document.getElementById("editable");
+      console.log(editable.innerHTML);
+      var hidden_tag_field = document.getElementById("hidden-tag-field");
+      hidden_tag_field.value += editable.innerHTML;
+        tf.innerHTML = tf.innerHTML.substring(0, tf.innerHTML.indexOf(editable.outerHTML)) + "<div class=\"tag\" contenteditable=\"false\">" + editable.innerHTML.substring(0, editable.innerHTML.indexOf(",")) + "</div><div contenteditable=\"true\" id=\"editable\"></div>";
+      editable = document.getElementById("editable");
+      
+      console.log(editable.innerHTML);
+      editable.innerHTML = "";
+      console.log(hidden_tag_field.outerHTML);
+      tf.children[tf.children.length - 1].focus();
     }
-}
+  };
+  tf.onclick = function(){
+    tf.children[tf.children.length - 1].focus();
+  };
 </script>
