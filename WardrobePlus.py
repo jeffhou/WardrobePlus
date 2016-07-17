@@ -12,11 +12,12 @@ def getClothing(guid):
 
 class Clothing:
     guid_counter = 0
-    def __init__(self, name):
+    def __init__(self, name, tags=[]):
         self.name = str(name)
         self.compatible_clothes = []
         self.guid = Clothing.guid_counter
         self.inWardrobe = True
+        self.tags = tags
         Clothing.guid_counter += 1
     def pair(self, other):
         self.compatible_clothes.append(other)
@@ -36,16 +37,15 @@ def edit_wardrobe():
 def begin_session():
     return redirect(url_for("sessionCheckout"))
 
-@app.route('/add_clothing')
-def add_clothing():
-    global clothes_guid, clothes
-    return render_template('new_clothing.html')
-   
-
 @app.route('/new_clothing', methods=['POST'])
 def new_clothing():
     clothing_name = request.form['name']
-    new_clothing = Clothing(clothing_name)
+    clothing_tags = request.form['tags']
+    print(clothing_tags)
+    new_clothing = Clothing(
+        clothing_name, filter(
+            lambda x: len(x) > 0, str(clothing_tags).split(",")))
+    print(new_clothing.tags)
     clothes.append(new_clothing)
     return redirect(url_for("edit_wardrobe"))
 
