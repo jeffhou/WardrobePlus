@@ -1,20 +1,24 @@
-import sqlite3 as lite
-import sys
+import sqlite3
+
 dbConnection = None
-def get_db():
+
+def connectDB():
+  dbConnection = sqlite3.connect("closet.db")
+  return dbConnection
+
+def getDB():
   global dbConnection
   if dbConnection == None:
     dbConnection = connectDB()
   return dbConnection
 
-def close_db():
+def closeDB():
   global dbConnection
   if dbConnection != None:
     dbConnection.close()
 
 def createTable(tableName, tableAttributes, force=True):
-  connection = get_db()
-  with connection:
+  with getDB() as connection:
     cursor = connection.cursor()
     if force:
       cursor.execute("DROP TABLE IF EXISTS %s" % tableName)
@@ -25,7 +29,7 @@ def createTable(tableName, tableAttributes, force=True):
       print "EXCEPT: " + str(e)
 
 def addCloth(clothName):
-  connection = get_db()
+  connection = getDB()
   with connection:
     cursor = connection.cursor()
     try:
@@ -34,7 +38,7 @@ def addCloth(clothName):
       print "EXCEPT: " + str(e)
 
 def getCloth(clothId):
-  connection = get_db()
+  connection = getDB()
   with connection:
     cursor = connection.cursor()
     try:
@@ -44,7 +48,7 @@ def getCloth(clothId):
       print "EXCEPT: " + str(e)
 
 def delCloth(clothId):
-  connection = get_db()
+  connection = getDB()
   with connection:
     cursor = connection.cursor()
     try:
@@ -53,7 +57,7 @@ def delCloth(clothId):
       print "EXCEPT: " + str(e)
 
 def getTag(tagId):
-  connection = get_db()
+  connection = getDB()
   with connection:
     cursor = connection.cursor()
     try:
@@ -62,8 +66,18 @@ def getTag(tagId):
     except Exception as e:
       print "EXCEPT: " + str(e)
 
+def getTags(tagId):
+  connection = getDB()
+  with connection:
+    cursor = connection.cursor()
+    try:
+      cursor.execute("SELECT * FROM Tags")
+      return cursor.fetchall()
+    except Exception as e:
+      print "EXCEPT: " + str(e)
+
 def delTag(tagId):
-  connection = get_db()
+  connection = getDB()
   with connection:
     cursor = connection.cursor()
     try:
@@ -72,7 +86,7 @@ def delTag(tagId):
       print "EXCEPT: " + str(e)
 
 def delClothesTagsAssociations(clothId, tagId):
-  connection = get_db()
+  connection = getDB()
   with connection:
     cursor = connection.cursor()
     try:
@@ -81,7 +95,7 @@ def delClothesTagsAssociations(clothId, tagId):
       print "EXCEPT: " + str(e)
 
 def tagCloth(clothId, tagString):
-  connection = get_db()
+  connection = getDB()
   with connection:
     cursor = connection.cursor()
     # add tag if needed
@@ -103,12 +117,8 @@ def tagCloth(clothId, tagString):
     except Exception as e:
       print "Except: " + str(e)
 
-def connectDB():
-  dbConnection = lite.connect("closet.db")
-  return dbConnection
-
 def getTagIdsForCloth(clothId):
-  with get_db() as connection:
+  with getDB() as connection:
     cursor = connection.cursor()
     try:
       cursor.execute("SELECT * FROM ClothesTagsAssociations WHERE ClothId=?", (clothId,))
@@ -118,7 +128,7 @@ def getTagIdsForCloth(clothId):
 
 def getTagNamesByClothId(clothId):
   tagIds = getTagIdsForCloth(clothId)
-  with get_db() as connection:
+  with getDB() as connection:
     cursor = connection.cursor()
     try:
       cursor.execute("SELECT * FROM Tags WHERE Id IN (%s)" % ", ".join([str(i) for i in tagIds]))
@@ -127,7 +137,7 @@ def getTagNamesByClothId(clothId):
       print "Except: " + str(e)
 
 def getClothesByTagIds(tagIds):
-  with get_db() as connection:
+  with getDB() as connection:
     cursor = connection.cursor()
     try:
       unionQueryString = "SELECT DISTINCT ClothId from ClothesTagsAssociations C WHERE (%s)" % " AND ".join([("EXISTS (SELECT 1 FROM ClothesTagsAssociations WHERE TagId=%s AND ClothId=C.ClothId)" % str(i)) for i in tagIds])
@@ -138,8 +148,6 @@ def getClothesByTagIds(tagIds):
       print "Except: " + str(e)
 
 createTable("Clothes", [["Name", "TEXT"]])
-for i in ["Shirt", "Pants", "OCBD", "Jacket", "Tie", "Hat"]:
-  addCloth(i)
 createTable("Tags", [["Name", "TEXT UNIQUE"]])
 createTable("ClothesTagsAssociations", [["ClothId", "INTEGER"], ["TagId", "INTEGER"], ["UNIQUE(ClothId, TagId)", "ON CONFLICT IGNORE"]])
 tagCloth(1, "Korean")
