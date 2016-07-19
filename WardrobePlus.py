@@ -1,8 +1,6 @@
 from flask import Flask, render_template, redirect, url_for, request, g
 import sqlite3
 
-dbConnection = None
-
 def connect_db():
   dbConnection = sqlite3.connect("closet.db")
   return dbConnection
