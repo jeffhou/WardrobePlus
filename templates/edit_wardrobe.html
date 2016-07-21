@@ -134,6 +134,7 @@
 <div id="sidenav">
   <a href="{{ url_for("index") }}">Main Menu</a>
   <button id="add-clothing">Add Clothing</a>
+  <a href="{{ url_for("remove_clothing") }}">Delete Clothing</a>
 </div>
 <div id="main">
   <div>
@@ -181,7 +182,7 @@
       </div>
       <div style="margin-top: 5px">
         <a href="#" class="cloth-button"><i class="fa fa-area-chart"></i></a>
-        <a href="#" class="cloth-button"><i class="fa fa-trash-o"></i></a>
+        <a href="{{ url_for('delete_clothes_button', id=i.guid)}}" class="cloth-button"><i class="fa fa-trash-o"></i></a>
       </div>
     </div>
     {% endfor %}

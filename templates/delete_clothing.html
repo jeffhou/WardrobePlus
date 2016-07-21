@@ -1,0 +1,17 @@
+
+<link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+<form class="form-inline" method="POST" action="{{ url_for('delete_clothing') }}">
+  <div class="form-group">
+    <div class="input-group">
+        <span class="input-group-addon">Delete clothing</span>
+            <select name="comp_select" class="selectpicker form-control">
+              {% for i in clothes %} 
+              <option value="{{ i.guid }}"> {{ i.name }}</option>
+              {% endfor %}
+            </select>
+    </div>
+    <input type="submit" value="Submit" />
+    <input type="button" value="Cancel" onClick="window.location='{{ url_for("index") }}';" />
+      <br />
+  </div>
+</form>
