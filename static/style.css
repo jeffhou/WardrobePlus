@@ -1,10 +1,36 @@
 .form-title {
-  color:#4078c0;
-  font: 18px;
-  font-weight: bold;
 }
 .form .form-title{
-  font: 16px / 1.4 Helvetica, arial, nimbussansl, liberationsans, freesans, clean, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  background: #444;
+  color: white;
+  padding: 10px 0px;
+  text-align: center;
+}
+.form-block {
+  margin: 10px 0px;
+}
+.form-block.centered {
+  margin: 10px 0px;
+  text-align: center;
+}
+.form-input-textbox {
+  border: 1px solid black;
+  width: 100%;
+  padding: 5px 0px;
+  font-size: 16px;
+  font-family: arial;
+}
+.form-input-buttons {
+  border: 1px black solid;
+  background: white;
+  padding: 4px;
+}
+.form-input-textbox.form-input-reg{
+  padding-left: 5px;
+  padding-right: 5px;
+}
+.form-input-title {
+  margin-bottom: 4px;
 }
 .session-inventory-box {
   border: 1px solid black;
