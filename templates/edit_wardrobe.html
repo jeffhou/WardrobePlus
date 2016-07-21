@@ -1,9 +1,10 @@
 <script src="https://use.fontawesome.com/8500ed540a.js"></script>
 <style>
   #tf {
-    border: 1px solid #ccc;
-    padding: 5px;
     cursor: text;
+  }
+  .module-form {
+
   }
   #editable {
     padding: 3px;
@@ -15,7 +16,7 @@
     border: 1px solid #48f;
     color: #48f;
     display: inline-block;
-    margin: 0px 3px 3px;
+    margin: 0px 3px 0px;
     padding: 2px 4px;
     border-radius: 7px;
   }
@@ -48,7 +49,6 @@
     display: inline-block;
     font-size: 10px;
     border-radius:30px;
-
   }
 
   #sidenav {
@@ -94,7 +94,7 @@
     width: calc(100% - 300px);
     display: inline-block;
   }
-  input[type=text]{
+  input[type=text][name=search]{
     width: 130px;
     box-sizing: border-box;
     border: 1px solid #444;
@@ -126,9 +126,7 @@
   .modal-content {
     background-color: #fefefe;
     margin: auto;
-    padding: 20px;
-    border: 1px solid #888;
-    border-radius: 20px;
+    padding: 20px 15px 1px;
     width: 300px;
     position: relative;
     top: 50%;
@@ -209,25 +207,27 @@
 <div id="myModal" class="modal">
   <!-- Modal content -->
   <div class="modal-content">
-    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}" />
   <div class="form">
     <div class="form-title">New Clothing</div>
     <form action="{{ url_for("new_clothing") }}" method="post">
-      <div>
-        <div style="inline-block">Name:</div>
-        <div style="inline-block"><input type="text" name="name" id="name-field" /></div>
+      <div class="form-block">
+        <div class="form-input-title">Name:</div>
+        <div><input class="form-input-textbox form-input-reg" type="text" name="name" id="name-field"/></div>
       </div>
-      <div>
-        <div>Tags (comma separated):</div>
-        <div id="tf">
-          <div contenteditable="true" style = "width:100%;" id="editable"></div>
+      <div class="form-block">
+        <div class="form-input-title">Tags (comma separated):</div>
+        <div>
+          <div id="tf" class="form-input-textbox">
+            <div contenteditable="true" id="editable"></div>
+          </div>
         </div>
       </div>
       <div style="display: none"><input type="text" name="tags" id="hidden-tag-field" value=""/></div>
-
-    <br />
-    <input type="submit" value="Submit" />
-    <input type="button" value="Cancel" id="cancel" />
+    <div class="form-block" style="height:30px">
+      <input class="form-input-buttons" type="submit" value="Submit" style="margin-top:3px;float:left;"/>
+      <input class="form-input-buttons" type="button" value="Cancel" style="margin-top:3px;float:right;" id="cancel" />
+    </div>
     </form>
   </div>
 

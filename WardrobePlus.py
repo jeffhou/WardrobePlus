@@ -1,5 +1,6 @@
 from flask import Flask, render_template, redirect, url_for, request, g
 import sqlite3
+import inspect
 
 def connect_db():
   dbConnection = sqlite3.connect("closet.db")
@@ -19,7 +20,7 @@ def createTable(tableName, tableAttributes, force=True):
     try:
       cursor.execute("CREATE TABLE %s(Id INTEGER PRIMARY KEY AUTOINCREMENT, %s);" % (tableName, columns))
     except Exception as e:
-      print "EXCEPT: " + str(e)
+      print "EXCEPT (createTable): " + str(e)
 
 def addCloth(clothName):
   connection = getDB()
@@ -29,7 +30,7 @@ def addCloth(clothName):
       cursor.execute("INSERT INTO Clothes(Name) VALUES('%s');" % (clothName))
       return getClothGuidByName(clothName)
     except Exception as e:
-      print "EXCEPT: " + str(e)
+      print "EXCEPT (addCloth): " + str(e)
 
 def getClothGuidByName(clothName):
     connection = getDB()
@@ -39,7 +40,7 @@ def getClothGuidByName(clothName):
             cursor.execute("SELECT * FROM Clothes WHERE Name='%s'" % clothName)
             return cursor.fetchone()
         except Exception as e:
-            print "EXCEPT: " + str(e)
+            print "EXCEPT (getClothGuidByName): " + str(e)
 
 def getCloth(clothId):
   connection = getDB()
@@ -49,7 +50,7 @@ def getCloth(clothId):
       cursor.execute("SELECT * FROM Clothes WHERE Id=%s" % (clothId))
       return cursor.fetchall()[0]
     except Exception as e:
-      print "EXCEPT: " + str(e)
+      print "EXCEPT (getCloth): " + str(e)
 
 def getClothesDB():
   connection = getDB()
