@@ -48,7 +48,7 @@
     display: inline-block;
     font-size: 10px;
     border-radius:30px;
-    
+
   }
 
   #sidenav {
@@ -66,7 +66,7 @@
     text-align: left;
     cursor: pointer;
     display: block;
-    padding: 4px 0px 5px 25px;
+    padding: 6px 10px 5px 25px;
     margin-left: -20px;
     margin-bottom: 10px;
     border-radius: 10px;
@@ -121,7 +121,7 @@
     background-color: rgb(0,0,0); /* Fallback color */
     background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
   }
-  
+
   /* Modal Content */
   .modal-content {
     background-color: #fefefe;
@@ -141,7 +141,7 @@
     font-size: 28px;
     font-weight: bold;
   }
-  
+
   .close:hover,
   .close:focus {
     color: #000;
@@ -224,7 +224,7 @@
         </div>
       </div>
       <div style="display: none"><input type="text" name="tags" id="hidden-tag-field" value=""/></div>
-          
+
     <br />
     <input type="submit" value="Submit" />
     <input type="button" value="Cancel" id="cancel" />
@@ -236,17 +236,17 @@
 <script>
   // Get the modal
   var modal = document.getElementById('myModal');
-  
+
   // Get the button that opens the modal
   var btn = document.getElementById("add-clothing");
-  
+
   var cancel = document.getElementById("cancel");
-  
+
   // When the user clicks the button, open the modal
   btn.onclick = function() {
       modal.style.display = "block";
   }
-  
+
   // When the user clicks anywhere outside of the modal, close it
   window.onclick = function(event) {
       if (event.target == modal || event.target == cancel) {
@@ -254,12 +254,12 @@
           var tf = document.getElementById("tf");
           tf.innerHTML = "<div contenteditable=\"true\" style = \"width:100%;\" id=\"editable\"></div>";
           var name_field = document.getElementById("name-field");
-          name_field.value = "";  
+          name_field.value = "";
           // TODO: clear tags completely
       }
   }
   var tf = document.getElementById("tf");
-  
+
   tf.onkeyup = function(){
     if(tf.innerHTML.indexOf(",") > -1) {
       var editable = document.getElementById("editable");
@@ -268,7 +268,7 @@
       hidden_tag_field.value += editable.innerHTML;
         tf.innerHTML = tf.innerHTML.substring(0, tf.innerHTML.indexOf(editable.outerHTML)) + "<div class=\"tag\" contenteditable=\"false\">" + editable.innerHTML.substring(0, editable.innerHTML.indexOf(",")) + "</div><div contenteditable=\"true\" id=\"editable\"></div>";
       editable = document.getElementById("editable");
-      
+
       console.log(editable.innerHTML);
       editable.innerHTML = "";
       console.log(hidden_tag_field.outerHTML);
