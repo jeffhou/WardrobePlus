@@ -251,8 +251,8 @@ def new_clothing():
 def remove_clothing():
     return render_template('delete_clothing.html', clothes=getClothesListDB())
 
-@app.route('/delete_clothes_button/<int:id>')
-def delete_clothes_button(id):
+@app.route('/delete_cloth/<int:id>')
+def delete_cloth(id):
     delCloth(id)
     return redirect(url_for("edit_wardrobe"))
 
