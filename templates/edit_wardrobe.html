@@ -155,30 +155,9 @@
 <div id="main">
   <div>
     <div id="tag-container">
-      <div class="clothing-tag">shirt</div>
-      <div class="clothing-tag">pants</div>
-      <div class="clothing-tag">socks</div>
-      <div class="clothing-tag">ties</div>
-      <div class="clothing-tag">headwear</div>
-      <div class="clothing-tag">korean</div>
-      <div class="clothing-tag">shirt</div>
-      <div class="clothing-tag">pants</div>
-      <div class="clothing-tag">socks</div>
-      <div class="clothing-tag">ties</div>
-      <div class="clothing-tag">headwear</div>
-      <div class="clothing-tag">korean</div>
-      <div class="clothing-tag">shirt</div>
-      <div class="clothing-tag">pants</div>
-      <div class="clothing-tag">socks</div>
-      <div class="clothing-tag">ties</div>
-      <div class="clothing-tag">headwear</div>
-      <div class="clothing-tag">korean</div>
-      <div class="clothing-tag">shirt</div>
-      <div class="clothing-tag">pants</div>
-      <div class="clothing-tag">socks</div>
-      <div class="clothing-tag">ties</div>
-      <div class="clothing-tag">headwear</div>
-      <div class="clothing-tag">korean</div>
+      {% for i in tags %}
+        <div class="clothing-tag">{{ i[1] }}</div>
+      {% endfor %}
     </div>
     <div style="display: inline-block; vertical-align: top">
       <form>
