@@ -94,7 +94,7 @@ def closeDB(error):
   if hasattr(g, 'sqlite_db'):
     g.sqlite_db.close()
 
-def getClothesListDB():
+def getClothes():
     clothes = getClothesDB()
     clothesList = []
     for i in clothes:
@@ -106,7 +106,7 @@ def getClothesListDB():
     return clothesList
 
 def getClothing(guid):
-    for i in getClothesListDB():
+    for i in getClothes():
         if guid == i.guid:
             return i
 
@@ -156,14 +156,14 @@ def edit_wardrobe():
     selectedTags = [int(i) for i in request.args.getlist('selectedTags')]
     tags = selectedTags
     clothGuids = getClothesByTagIds(tags)
-    allClothes = getClothesListDB()
+    allClothes = getClothes()
     filteredClothes = filter(lambda x: x.guid in clothGuids, allClothes)
     tagUsage = getTagUsage()
     displayTags = filter(lambda x: x[0] in tagUsage and tagUsage[x[0]] > 0, getTags())
     return render_template('edit_wardrobe.html', clothes=filteredClothes, tags=displayTags, filtered=True, selectedTags=tags)
   tagUsage = getTagUsage()
   displayTags = filter(lambda x: x[0] in tagUsage and tagUsage[x[0]] > 0, getTags())
-  return render_template('edit_wardrobe.html', clothes=getClothesListDB(), tags=displayTags, filtered=False)
+  return render_template('edit_wardrobe.html', clothes=getClothes(), tags=displayTags, filtered=False)
 
 @app.route('/begin_session')
 def begin_session():
@@ -181,7 +181,7 @@ def new_clothing():
 
 @app.route('/remove_clothing', methods=['GET', 'POST'])
 def remove_clothing():
-    return render_template('delete_clothing.html', clothes=getClothesListDB())
+    return render_template('delete_clothing.html', clothes=getClothes())
 
 @app.route('/delete_cloth/<int:id>')
 def delete_cloth(id):
@@ -213,14 +213,14 @@ def sessionCheckout():
     if 'clothingGUID' in request.args:
         clothingGUID = int(request.args['clothingGUID'])
         getClothing(clothingGUID).checkout()
-    return render_template('session.html', clothes=getClothesListDB())
+    return render_template('session.html', clothes=getClothes())
 
 @app.route('/session#return')
 def sessionReturn():
     if 'clothingGUID' in request.args:
         clothingGUID = int(request.args['clothingGUID'])
         getClothing(clothingGUID).checkin()
-    return render_template('session.html', clothes=getClothesListDB())
+    return render_template('session.html', clothes=getClothes())
 
 if __name__ == '__main__':
     app.run('0.0.0.0', debug=True, port=8080)
