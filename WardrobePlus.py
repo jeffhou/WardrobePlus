@@ -82,6 +82,19 @@ def getTag(tagId):
     except Exception as e:
       print "EXCEPT (%s): " % (inspect.currentframe().f_code.co_name,) + str(e)
 
+def getTagUsage():
+  connection = getDB()
+  with connection:
+    cursor = connection.cursor()
+    try:
+      cursor.execute("SELECT t.id, c.cnt FROM Tags t INNER JOIN (SELECT TagId, count(TagId) as cnt FROM ClothesTagsAssociations GROUP BY TagId) c ON t.id = c.TagId")
+      usageDict = {}
+      for i in cursor.fetchall():
+        usageDict[i[0]] = i[1]
+      return usageDict
+    except Exception as e:
+      print "EXCEPT (%s): " % (inspect.currentframe().f_code.co_name,) + str(e)
+
 def getTags():
   connection = getDB()
   with connection:
@@ -253,8 +266,12 @@ def edit_wardrobe():
     clothGuids = getClothesByTagIds(tags)
     allClothes = getClothesListDB()
     filteredClothes = filter(lambda x: x.guid in clothGuids, allClothes)
-    return render_template('edit_wardrobe.html', clothes=filteredClothes, tags=getTags(), filtered=True, selectedTags=tags)
-  return render_template('edit_wardrobe.html', clothes=getClothesListDB(), tags=getTags(), filtered=False)
+    tagUsage = getTagUsage()
+    displayTags = filter(lambda x: x[0] in tagUsage and tagUsage[x[0]] > 0, getTags())
+    return render_template('edit_wardrobe.html', clothes=filteredClothes, tags=displayTags, filtered=True, selectedTags=tags)
+  tagUsage = getTagUsage()
+  displayTags = filter(lambda x: x[0] in tagUsage and tagUsage[x[0]] > 0, getTags())
+  return render_template('edit_wardrobe.html', clothes=getClothesListDB(), tags=displayTags, filtered=False)
 
 @app.route('/begin_session')
 def begin_session():
