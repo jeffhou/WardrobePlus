@@ -68,6 +68,7 @@ def delCloth(clothId):
     cursor = connection.cursor()
     try:
       cursor.execute("DELETE FROM Clothes WHERE Id=%s" % (clothId))
+      cursor.execute("DELETE FROM ClothesTagsAssociations WHERE ClothId=%s" % (clothId))
     except Exception as e:
       print "EXCEPT (%s): " % (inspect.currentframe().f_code.co_name,) + str(e)
 
