@@ -102,7 +102,7 @@ def getClothes():
         clothTags = getTagsByClothId(int(i[0])) #TODO need to recast/retype this variable
         clothInWardrobe = bool(i[2])
         clothGuid = int(i[0])
-        clothesList.append(ClothingDB(clothName, clothTags, clothInWardrobe, clothGuid))
+        clothesList.append(Clothing(clothName, clothTags, clothInWardrobe, clothGuid))
     return clothesList
 
 def getClothing(guid):
@@ -110,7 +110,7 @@ def getClothing(guid):
         if guid == i.guid:
             return i
 
-class ClothingDB:
+class Clothing:
     def __init__(self, name, tags=[], inWardrobe=True, guid=-1):
         self.name = str(name)
         self.guid = guid
@@ -125,7 +125,7 @@ class ClothingDB:
         self.inWardrobe = False
         updateClothStatus(self.guid, 0) #should update after any change
     def __str__(self):
-        return "[ClothingDB]" + str({"name": self.name, "guid": self.guid,
+        return "[Clothing]" + str({"name": self.name, "guid": self.guid,
             "tags": self.tags, "inWardrobe": self.inWardrobe})
 
 @app.route('/')
