@@ -229,9 +229,31 @@ def index():
     createTable("ClothesTagsAssociations", [["ClothId", "INTEGER"], ["TagId", "INTEGER"], ["UNIQUE(ClothId, TagId)", "ON CONFLICT IGNORE"]])
     return render_template('landing_menu.html')
 
-@app.route('/edit_wardrobe')
+@app.route('/edit_wardrobe', methods=['GET'])
 def edit_wardrobe():
-    return render_template('edit_wardrobe.html', clothes=getClothesListDB(), tags=getTags()) #names and guids, preferably also tags
+  if 'tag' in request.args: #TODO show "no clothes match search parameters"
+    tags = [int(request.args['tag'])]
+    if 'selectedTags' in request.args:
+      selectedTags = [int(i) for i in request.args.getlist('selectedTags')]
+      tags += selectedTags
+    return redirect(url_for('edit_wardrobe', selectedTags=tags))
+  elif 'untag' in request.args:
+    selectedTags = [int(i) for i in request.args.getlist('selectedTags')]
+    #print selectedTags
+    selectedTags.remove(int(request.args['untag']))
+    tags = selectedTags
+    if len(selectedTags) > 0:
+      return redirect(url_for('edit_wardrobe', selectedTags=selectedTags))
+    else:
+      return redirect(url_for('edit_wardrobe'))
+  elif 'selectedTags' in request.args:
+    selectedTags = [int(i) for i in request.args.getlist('selectedTags')]
+    tags = selectedTags
+    clothGuids = getClothesByTagIds(tags)
+    allClothes = getClothesListDB()
+    filteredClothes = filter(lambda x: x.guid in clothGuids, allClothes)
+    return render_template('edit_wardrobe.html', clothes=filteredClothes, tags=getTags(), filtered=True, selectedTags=tags)
+  return render_template('edit_wardrobe.html', clothes=getClothesListDB(), tags=getTags(), filtered=False)
 
 @app.route('/begin_session')
 def begin_session():

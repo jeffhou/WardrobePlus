@@ -88,6 +88,23 @@
     border-radius: 10px;
     color: black;
     margin: 2px 2px;
+    text-decoration: none;
+  }
+  .clothing-tag.selected{
+    display: inline-block;
+    padding: 3px 7px;
+    border: 1px solid #555;
+    border-radius: 10px;
+    color: white;
+    background-color: black;
+    margin: 2px 2px;
+    text-decoration: none;
+  }
+  .clothing-tag-clear {
+    display: inline-block;
+    vertical-align:bottom;
+    color: black;
+    font-size: 13px;
   }
   #tag-container {
     margin-bottom: 20px;
@@ -156,8 +173,19 @@
   <div>
     <div id="tag-container">
       {% for i in tags %}
-        <div class="clothing-tag">{{ i[1] }}</div>
+        {% if filtered %}
+          {% if i[0] in selectedTags %}
+            <a href="{{ url_for('edit_wardrobe', untag=i[0], selectedTags=selectedTags) }}" class="clothing-tag selected">{{ i[1] }}</a>
+          {% else %}
+            <a href="{{ url_for('edit_wardrobe', tag=i[0], selectedTags=selectedTags) }}" class="clothing-tag">{{ i[1] }}</a>
+          {% endif %}
+        {% else %}
+          <a href="{{ url_for('edit_wardrobe', tag=i[0]) }}" class="clothing-tag">{{ i[1] }}</a>
+        {% endif %}
       {% endfor %}
+      {% if filtered %}
+        <a href="{{ url_for('edit_wardrobe') }}" class="clothing-tag-clear">clear tags</a>
+      {% endif %}
     </div>
     <div style="display: inline-block; vertical-align: top">
       <form>
