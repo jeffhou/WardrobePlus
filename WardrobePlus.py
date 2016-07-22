@@ -2,198 +2,90 @@ from flask import Flask, render_template, redirect, url_for, request, g
 import sqlite3
 import inspect
 
-def connect_db():
-  dbConnection = sqlite3.connect("closet.db")
+def connect_db(dbName):
+  dbConnection = sqlite3.connect(dbName)
   return dbConnection
 
 def getDB():
   if not hasattr(g, 'sqlite_db'):
-    g.sqlite_db = connect_db()
+    g.sqlite_db = connect_db("closet.db")
   return g.sqlite_db
 
 def createTable(tableName, tableAttributes, force=True):
-  with getDB() as connection:
+  if force:
+    executeDBCode("DROP TABLE IF EXISTS %s" % tableName)
+  columns = ", ".join([" ".join(attributePair) for attributePair in tableAttributes])
+  executeDBCode("CREATE TABLE %s(Id INTEGER PRIMARY KEY AUTOINCREMENT, %s);" % (tableName, columns), False)
+
+def executeDBCode(dbCode, returnsValues=False):
+  connection = getDB()
+  with connection:
     cursor = connection.cursor()
-    if force:
-      cursor.execute("DROP TABLE IF EXISTS %s" % tableName)
-    columns = ", ".join([" ".join(attributePair) for attributePair in tableAttributes])
     try:
-      cursor.execute("CREATE TABLE %s(Id INTEGER PRIMARY KEY AUTOINCREMENT, %s);" % (tableName, columns))
+      cursor.execute(dbCode)
+      if returnsValues:
+        return cursor.fetchall()
     except Exception as e:
-      print "EXCEPT (%s): " % (inspect.currentframe().f_code.co_name,) + str(e)
+      print "EXCEPT (%s): " % (dbCode,) + str(e)
 
 def addCloth(clothName):
-  connection = getDB()
-  with connection:
-    cursor = connection.cursor()
-    try:
-      cursor.execute("INSERT INTO Clothes(Name) VALUES('%s');" % (clothName))
-      return getClothGuidByName(clothName)
-    except Exception as e:
-      print "EXCEPT (%s): " % (inspect.currentframe().f_code.co_name,) + str(e)
+  executeDBCode("INSERT INTO Clothes(Name) VALUES('%s');" % (clothName), False)
+  return getClothGuidByName(clothName)
 
 def getClothGuidByName(clothName):
-    connection = getDB()
-    with connection:
-        cursor = connection.cursor()
-        try:
-            cursor.execute("SELECT * FROM Clothes WHERE Name='%s'" % clothName)
-            return cursor.fetchone()[0]
-        except Exception as e:
-            print "EXCEPT (%s): " % (inspect.currentframe().f_code.co_name,) + str(e)
+  return executeDBCode("SELECT * FROM Clothes WHERE Name='%s'" % clothName, True)[0][0]
 
 def getCloth(clothId):
-  connection = getDB()
-  with connection:
-    cursor = connection.cursor()
-    try:
-      cursor.execute("SELECT * FROM Clothes WHERE Id=%s" % (clothId))
-      return cursor.fetchall()[0]
-    except Exception as e:
-      print "EXCEPT (%s): " % (inspect.currentframe().f_code.co_name,) + str(e)
+  return executeDBCode("SELECT * FROM Clothes WHERE Id=%s" % (clothId), True)[0]
 
 def getClothesDB():
-  connection = getDB()
-  with connection:
-    cursor = connection.cursor()
-    try:
-      cursor.execute("SELECT * FROM Clothes")
-      return cursor.fetchall()
-    except Exception as e:
-      print "EXCEPT (%s): " % (inspect.currentframe().f_code.co_name,) + str(e)
+  return executeDBCode("SELECT * FROM Clothes", True)
 
 def delCloth(clothId):
-  connection = getDB()
-  with connection:
-    cursor = connection.cursor()
-    try:
-      cursor.execute("DELETE FROM Clothes WHERE Id=%s" % (clothId))
-      cursor.execute("DELETE FROM ClothesTagsAssociations WHERE ClothId=%s" % (clothId))
-    except Exception as e:
-      print "EXCEPT (%s): " % (inspect.currentframe().f_code.co_name,) + str(e)
+  executeDBCode("DELETE FROM Clothes WHERE Id=%s" % (clothId))
+  executeDBCode("DELETE FROM ClothesTagsAssociations WHERE ClothId=%s" % (clothId))
 
 def getTag(tagId):
-  connection = getDB()
-  with connection:
-    cursor = connection.cursor()
-    try:
-      cursor.execute("SELECT * FROM Tags WHERE Id=%s" % (tagId))
-      return cursor.fetchall()[0]
-    except Exception as e:
-      print "EXCEPT (%s): " % (inspect.currentframe().f_code.co_name,) + str(e)
+  return executeDBCode("SELECT * FROM Tags WHERE Id=%s" % (tagId), True)[0]
 
 def getTagUsage():
-  connection = getDB()
-  with connection:
-    cursor = connection.cursor()
-    try:
-      cursor.execute("SELECT t.id, c.cnt FROM Tags t INNER JOIN (SELECT TagId, count(TagId) as cnt FROM ClothesTagsAssociations GROUP BY TagId) c ON t.id = c.TagId")
-      usageDict = {}
-      for i in cursor.fetchall():
-        usageDict[i[0]] = i[1]
-      return usageDict
-    except Exception as e:
-      print "EXCEPT (%s): " % (inspect.currentframe().f_code.co_name,) + str(e)
+  usageDict = {}
+  for i in executeDBCode("SELECT t.id, c.cnt FROM Tags t INNER JOIN (SELECT TagId, count(TagId) as cnt FROM ClothesTagsAssociations GROUP BY TagId) c ON t.id = c.TagId", True):
+    usageDict[i[0]] = i[1]
+  return usageDict
 
 def getTags():
-  connection = getDB()
-  with connection:
-    cursor = connection.cursor()
-    try:
-      cursor.execute("SELECT * FROM Tags")
-      return [(i[0], str(i[1])) for i in cursor.fetchall()]
-    except Exception as e:
-      print "EXCEPT (%s): " % (inspect.currentframe().f_code.co_name,) + str(e)
+  return [(i[0], str(i[1])) for i in executeDBCode("SELECT * FROM Tags", True)]
 
 def delTag(tagId):
-  connection = getDB()
-  with connection:
-    cursor = connection.cursor()
-    try:
-      cursor.execute("DELETE FROM Tags WHERE Id=%s" % (tagId))
-    except Exception as e:
-      print "EXCEPT (%s): " % (inspect.currentframe().f_code.co_name,) + str(e)
+  executeDBCode("DELETE FROM Tags WHERE Id=%s" % (tagId))
 
 def delClothesTagsAssociations(clothId, tagId):
-  connection = getDB()
-  with connection:
-    cursor = connection.cursor()
-    try:
-      cursor.execute("DELETE FROM ClothesTagsAssociations WHERE ClothId=%s AND TagId=%s" % (clothId, tagId))
-    except Exception as e:
-      print "EXCEPT (%s): " % (inspect.currentframe().f_code.co_name,) + str(e)
+  executeDBCode("DELETE FROM ClothesTagsAssociations WHERE ClothId=%s AND TagId=%s" % (clothId, tagId))
 
 def tagCloth(clothId, tagString):
   tagString = tagString.lower()
-  connection = getDB()
-  with connection:
-    cursor = connection.cursor()
-    # add tag if needed
-    try:
-      cursor.execute("INSERT INTO Tags(Name) VALUES('%s');" % (tagString))
-    except Exception as e:
-      print "EXCEPT A(%s): " % (inspect.currentframe().f_code.co_name,) + str(e)
-    # TODO: sanitize string inputs
-    # get tagId
-    tagId = -1
-    try:
-      cursor.execute("SELECT * FROM Tags WHERE Name=?", (tagString,)) #TODO unique select that excepts if fetchall gets more than one
-      tagId = cursor.fetchone()[0]
-    except Exception as e:
-      print "EXCEPT B(%s): " % (inspect.currentframe().f_code.co_name,) + str(e)
-      raise Exception("Could not find tag, should be able to")
-    try:
-      cursor.execute("INSERT INTO ClothesTagsAssociations(ClothId, TagId) VALUES(%s, %s);" % (clothId, tagId))
-    except Exception as e:
-      print "EXCEPT C(%s): " % (inspect.currentframe().f_code.co_name,) + str(e)
+  executeDBCode("INSERT INTO Tags(Name) VALUES('%s');" % (tagString)) #add tag, # TODO: sanitize string inputs
+  tagId = executeDBCode("SELECT * FROM Tags WHERE Name='%s'" % (tagString), True)[0][0]
+  executeDBCode("INSERT INTO ClothesTagsAssociations(ClothId, TagId) VALUES(%s, %s);" % (clothId, tagId))
 
 def getTagIdsForCloth(clothId):
-  with getDB() as connection:
-    cursor = connection.cursor()
-    try:
-      cursor.execute("SELECT * FROM ClothesTagsAssociations WHERE ClothId=?", (clothId,))
-      return [i[2] for i in cursor.fetchall()]
-    except Exception as e:
-      print "EXCEPT (%s): " % (inspect.currentframe().f_code.co_name,) + str(e)
+  return [i[2] for i in executeDBCode("SELECT * FROM ClothesTagsAssociations WHERE ClothId=%s" % (clothId), True)]
 
 def getTagNamesByClothId(clothId):
   tagIds = getTagIdsForCloth(clothId)
-  with getDB() as connection:
-    cursor = connection.cursor()
-    try:
-      cursor.execute("SELECT * FROM Tags WHERE Id IN (%s)" % ", ".join([str(i) for i in tagIds]))
-      return [str(i[1]) for i in cursor.fetchall()]
-    except Exception as e:
-      print "EXCEPT (%s): " % (inspect.currentframe().f_code.co_name,) + str(e)
+  return [str(i[1]) for i in executeDBCode("SELECT * FROM Tags WHERE Id IN (%s)" % ", ".join([str(i) for i in tagIds]), True)]
 
 def getTagsByClothId(clothId):
   tagIds = getTagIdsForCloth(clothId)
-  with getDB() as connection:
-    cursor = connection.cursor()
-    try:
-      cursor.execute("SELECT * FROM Tags WHERE Id IN (%s)" % ", ".join([str(i) for i in tagIds]))
-      return [(i[0], str(i[1])) for i in cursor.fetchall()]
-    except Exception as e:
-      print "EXCEPT (%s): " % (inspect.currentframe().f_code.co_name,) + str(e)
+  return [(i[0], str(i[1])) for i in executeDBCode("SELECT * FROM Tags WHERE Id IN (%s)" % ", ".join([str(i) for i in tagIds]), True)]
 
 def getClothesByTagIds(tagIds):
-  with getDB() as connection:
-    cursor = connection.cursor()
-    try:
-      unionQueryString = "SELECT DISTINCT ClothId from ClothesTagsAssociations C WHERE (%s)" % " AND ".join([("EXISTS (SELECT 1 FROM ClothesTagsAssociations WHERE TagId=%s AND ClothId=C.ClothId)" % str(i)) for i in tagIds])
-      cursor.execute(unionQueryString)
-      #cursor.execute("SELECT * FROM ClothesTagsAssociations WHERE TagId IN (%s)" % ", ".join([str(i) for i in tagIds]))
-      return [i[0] for i in cursor.fetchall()]
-    except Exception as e:
-      print "EXCEPT (%s): " % (inspect.currentframe().f_code.co_name,) + str(e)
+  unionQueryString = "SELECT DISTINCT ClothId from ClothesTagsAssociations C WHERE (%s)" % " AND ".join([("EXISTS (SELECT 1 FROM ClothesTagsAssociations WHERE TagId=%s AND ClothId=C.ClothId)" % str(i)) for i in tagIds])
+  return [i[0] for i in executeDBCode(unionQueryString, True)]
 
 def updateClothStatus(clothGuid, statusID):
-    with getDB() as connection:
-        cursor = connection.cursor()
-        try:
-            cursor.execute("UPDATE Clothes SET InWardrobe=%s WHERE Id=%s" % (str(statusID), clothGuid))
-        except Exception as e:
-            print "EXCEPT (%s): " % (inspect.currentframe().f_code.co_name,) + str(e)
+  executeDBCode("UPDATE Clothes SET InWardrobe=%s WHERE Id=%s" % (str(statusID), clothGuid))
 
 app = Flask(__name__)
 
