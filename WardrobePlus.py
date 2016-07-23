@@ -15,7 +15,7 @@ def createTable(tableName, tableAttributes, force=True):
   if force:
     executeDBCode("DROP TABLE IF EXISTS %s" % tableName)
   columns = ", ".join([" ".join(attributePair) for attributePair in tableAttributes])
-  executeDBCode("CREATE TABLE %s(Id INTEGER PRIMARY KEY AUTOINCREMENT, %s);" % (tableName, columns), False)
+  executeDBCode("CREATE TABLE %s(Id INTEGER PRIMARY KEY AUTOINCREMENT, %s);" % (tableName, columns))
 
 def executeDBCode(dbCode, returnsValues=False):
   connection = getDB()
@@ -28,9 +28,16 @@ def executeDBCode(dbCode, returnsValues=False):
     except Exception as e:
       print "EXCEPT (%s): " % (dbCode,) + str(e)
 
+def insert(table, keys, values):
+  keysString = ",".join([str(i) for i in keys])
+  valuesString = ",".join([str(i) for i in values])
+  executeDBCode("INSERT INTO %s(%s) VALUES(%s)" % (table, keysString, valuesString))
+
 def addCloth(clothName):
-  executeDBCode("INSERT INTO Clothes(Name) VALUES('%s');" % (clothName), False)
-  return getClothGuidByName(clothName)
+  insert("Clothes", ["Name"], ["'%s'" % clothName])
+
+def addTag(tagName):
+  insert("Tags", ["Name"], ["'%s'" % tagName])
 
 def getClothGuidByName(clothName):
   return executeDBCode("SELECT * FROM Clothes WHERE Name='%s'" % clothName, True)[0][0]
@@ -41,9 +48,12 @@ def getCloth(clothId):
 def getClothesDB():
   return executeDBCode("SELECT * FROM Clothes", True)
 
+def delClothTagAssociations(clothId):
+  executeDBCode("DELETE FROM ClothesTagsAssociations WHERE ClothId=%s" % (clothId))
+
 def delCloth(clothId):
   executeDBCode("DELETE FROM Clothes WHERE Id=%s" % (clothId))
-  executeDBCode("DELETE FROM ClothesTagsAssociations WHERE ClothId=%s" % (clothId))
+  delClothTagAssociations(clothId)
 
 def getTag(tagId):
   return executeDBCode("SELECT * FROM Tags WHERE Id=%s" % (tagId), True)[0]
@@ -65,9 +75,9 @@ def delClothesTagsAssociations(clothId, tagId):
 
 def tagCloth(clothId, tagString):
   tagString = tagString.lower()
-  executeDBCode("INSERT INTO Tags(Name) VALUES('%s');" % (tagString)) #add tag, # TODO: sanitize string inputs
+  addTag(tagString)
   tagId = executeDBCode("SELECT * FROM Tags WHERE Name='%s'" % (tagString), True)[0][0]
-  executeDBCode("INSERT INTO ClothesTagsAssociations(ClothId, TagId) VALUES(%s, %s);" % (clothId, tagId))
+  insert("ClothesTagsAssociations", ["ClothId", "TagId"], [clothId, tagId])
 
 def getTagIdsForCloth(clothId):
   return [i[2] for i in executeDBCode("SELECT * FROM ClothesTagsAssociations WHERE ClothId=%s" % (clothId), True)]
@@ -173,7 +183,8 @@ def begin_session():
 def new_clothing():
   clothing_name = request.form['name']
   clothing_tags = filter(lambda x: len(x) > 0, str(request.form['tags']).split(","))
-  newClothGuid = addCloth(clothing_name)#todo show status if cloth already exists
+  addCloth(clothing_name)#todo show status if cloth already exists
+  newClothGuid = getClothGuidByName(clothing_name)
   for i in clothing_tags:
     tagCloth(newClothGuid, i)
   return redirect(url_for("edit_wardrobe"))
@@ -202,7 +213,8 @@ def add_sample_set():
       samples.append(i + " " + j)
 
   for i in samples:
-    guid = addCloth(i)
+    addCloth(i)
+    guid = getClothGuidByName(i)
     tagCloth(guid, i.split()[0])
     tagCloth(guid, i.split()[1])
   return redirect(url_for("edit_wardrobe"))
