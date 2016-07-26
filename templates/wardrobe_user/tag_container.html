@@ -1,0 +1,16 @@
+<div id="tag-container">
+  {% for i in tags %}
+    {% if filtered %}
+      {% if i[0] in selectedTags %}
+        <a href="{{ url_for('use_wardrobe', untag=i[0], selectedTags=selectedTags) }}" class="clothing-tag selected">{{ i[1] }}</a>
+      {% else %}
+        <a href="{{ url_for('use_wardrobe', tag=i[0], selectedTags=selectedTags) }}" class="clothing-tag">{{ i[1] }}</a>
+      {% endif %}
+    {% else %}
+      <a href="{{ url_for('use_wardrobe', tag=i[0]) }}" class="clothing-tag">{{ i[1] }}</a>
+    {% endif %}
+  {% endfor %}
+  {% if filtered %}
+    <a href="{{ url_for('use_wardrobe') }}" class="clothing-tag-clear">clear tags</a>
+  {% endif %}
+</div>

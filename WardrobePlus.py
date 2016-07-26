@@ -11,7 +11,7 @@ def getDB():
     g.sqlite_db = connect_db("closet.db")
   return g.sqlite_db
 
-def createTable(tableName, tableAttributes, force=True):
+def createTable(tableName, tableAttributes, force=False):
   if force:
     executeDBCode("DROP TABLE IF EXISTS %s" % tableName)
   columns = ", ".join([" ".join(attributePair) for attributePair in tableAttributes])
@@ -138,12 +138,20 @@ class Clothing:
     return "[Clothing]" + str({"name": self.name, "guid": self.guid,
         "tags": self.tags, "inWardrobe": self.inWardrobe})
 
+def createTables(reset=False):
+  createTable("Clothes", [["Name", "TEXT UNIQUE"], ["InWardrobe", "SMALLINT DEFAULT 1"]], reset)
+  createTable("Tags", [["Name", "TEXT UNIQUE"]], reset)
+  createTable("ClothesTagsAssociations", [["ClothId", "INTEGER"], ["TagId", "INTEGER"], ["UNIQUE(ClothId, TagId)", "ON CONFLICT IGNORE"]], reset)
+
 @app.route('/')
 def index():
-  createTable("Clothes", [["Name", "TEXT UNIQUE"], ["InWardrobe", "SMALLINT DEFAULT 1"]])
-  createTable("Tags", [["Name", "TEXT UNIQUE"]])
-  createTable("ClothesTagsAssociations", [["ClothId", "INTEGER"], ["TagId", "INTEGER"], ["UNIQUE(ClothId, TagId)", "ON CONFLICT IGNORE"]])
+  createTables()
   return render_template('landing_menu.html')
+
+@app.route('/clear_wardrobe')
+def clear_wardrobe():
+  createTables(True)
+  return redirect(url_for('edit_wardrobe'))
 
 @app.route('/edit_wardrobe', methods=['GET'])
 def edit_wardrobe():
@@ -178,6 +186,50 @@ def edit_wardrobe():
 @app.route('/begin_session')
 def begin_session():
   return redirect(url_for("sessionCheckout"))
+
+@app.route('/checkout')
+def checkout():
+  if 'clothingGUID' in request.args:
+    clothingGUID = int(request.args['clothingGUID'])
+    getClothing(clothingGUID).checkout()
+  return redirect(url_for('use_wardrobe'))
+
+@app.route('/checkin')
+def checkin():
+  if 'clothingGUID' in request.args:
+    clothingGUID = int(request.args['clothingGUID'])
+    getClothing(clothingGUID).checkin()
+  return redirect(url_for('use_wardrobe'))
+
+@app.route('/use_wardrobe')
+def use_wardrobe():
+  if 'tag' in request.args: #TODO show "no clothes match search parameters"
+    tags = [int(request.args['tag'])]
+    if 'selectedTags' in request.args:
+      selectedTags = [int(i) for i in request.args.getlist('selectedTags')]
+      tags += selectedTags
+    return redirect(url_for('use_wardrobe', selectedTags=tags))
+  elif 'untag' in request.args:
+    selectedTags = [int(i) for i in request.args.getlist('selectedTags')]
+    #print selectedTags
+    selectedTags.remove(int(request.args['untag']))
+    tags = selectedTags
+    if len(selectedTags) > 0:
+      return redirect(url_for('use_wardrobe', selectedTags=selectedTags))
+    else:
+      return redirect(url_for('use_wardrobe'))
+  elif 'selectedTags' in request.args:
+    selectedTags = [int(i) for i in request.args.getlist('selectedTags')]
+    tags = selectedTags
+    clothGuids = getClothesByTagIds(tags)
+    allClothes = getClothes()
+    filteredClothes = filter(lambda x: x.guid in clothGuids, allClothes)
+    tagUsage = getTagUsage()
+    displayTags = filter(lambda x: x[0] in tagUsage and tagUsage[x[0]] > 0, getTags())
+    return render_template('use_wardrobe.html', clothes=filteredClothes, tags=displayTags, filtered=True, selectedTags=tags)
+  tagUsage = getTagUsage()
+  displayTags = filter(lambda x: x[0] in tagUsage and tagUsage[x[0]] > 0, getTags())
+  return render_template('use_wardrobe.html', clothes=getClothes(), tags=displayTags, filtered=False)
 
 @app.route('/new_clothing', methods=['POST'])
 def new_clothing():

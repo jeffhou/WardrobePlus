@@ -1,0 +1,38 @@
+<link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}" />
+{% include 'wardrobe_user/sidenav.html' %}
+<div id="main">
+  <div style="margin-bottom: 20px">
+    <div style="width:100%; border-bottom: 1px solid black; margin-bottom: 10px; padding-bottom: 3px;">Checked Out</div>
+    {% for i in clothes %}
+    {% if not i.inWardrobe %}
+    <a href="{{ url_for("checkin", clothingGUID=i.guid) }}" class="clothing out">
+      <div class="clothing-name out">
+        {{ i.name }}
+      </div>
+    </a>
+    {% endif %}
+    {% endfor %}
+  </div>
+  <div id="top-bar" style="margin-bottom: 10px">
+    <div style="width:100%; border-bottom: 1px solid black; margin-bottom: 10px; padding-bottom: 3px;">In Wardrobe</div>
+    {% include 'wardrobe_user/tag_container.html' %} {## TODO: sort only those in the wardrobe, not the ones that are checked out #}
+    <div id="search">
+      <form>
+        <input type="text" name="search" placeholder="Search..">
+      </form>
+    </div>
+  </div>
+  <div>
+    {% for i in clothes %}
+    {% if i.inWardrobe %}
+    <a href="{{ url_for("checkout", clothingGUID=i.guid) }}" class="clothing in">
+      <div class="clothing-name in">
+        {{ i.name }}
+      </div>
+    </a>
+    {% endif %}
+    {% endfor %}
+  </div>
+</div>
+{% include 'wardrobe_user/new_clothing_modal.html' %}
+<script src="https://use.fontawesome.com/8500ed540a.js"></script>

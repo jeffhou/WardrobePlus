@@ -92,7 +92,39 @@
   font-size: 16px;
   white-space: nowrap;
 }
+.clothing.out {
+  color: #F09;
+  padding: 0px;
+  width: 173px;
+  height: 43px;
+}
+.clothing.in {
+  color: #06B;
+  padding: 0px;
+  width: 173px;
+  height: 43px;
+}
+.clothing-name.in, .clothing-name.out {
+  margin-top: 0px;
+  border-bottom: none;
+  padding: 0px 0px;
+  line-height: 45px;
+  display: inline-block;
+}
 .cloth-button{
+  background-color: #FFF;
+  border: 1px solid #444;
+  color: #444;
+  padding: 5px 18px;
+  margin: 0px 4px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 10px;
+  border-radius:30px;
+}
+
+.wardrobe-button{
   background-color: #FFF;
   border: 1px solid #444;
   color: #444;
