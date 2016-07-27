@@ -1,6 +1,6 @@
 from flask import Flask, render_template, redirect, url_for, request, g
 import sqlite3
-import inspect
+import inspect, os
 
 def connect_db(dbName):
   dbConnection = sqlite3.connect(dbName)
@@ -306,4 +306,5 @@ def add_sample_set():
   return redirect(url_for("edit_wardrobe"))
 
 if __name__ == '__main__':
-  app.run('0.0.0.0', debug=True, port=8080)
+  port = int(os.environ.get('PORT', 8080))
+  app.run('0.0.0.0', debug=True, port=port)
