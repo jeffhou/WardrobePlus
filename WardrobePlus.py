@@ -48,6 +48,13 @@ def getCloth(clothId):
 def getClothesDB():
   return executeDBCode("SELECT * FROM Clothes", True)
 
+def getClothsByStatus(status=True):
+  if status:
+    inWardrobe = 1
+  else:
+    inWardrobe = 0
+  return executeDBCode("SELECT * FROM Clothes WHERE InWardrobe = %s" % (inWardrobe,), True)
+
 def delClothTagAssociations(clothId):
   executeDBCode("DELETE FROM ClothesTagsAssociations WHERE ClothId=%s" % (clothId))
 
@@ -104,7 +111,7 @@ def closeDB(error):
   if hasattr(g, 'sqlite_db'):
     g.sqlite_db.close()
 
-def getClothes():
+def getClothes(sort_=False):
   clothes = getClothesDB()
   clothesList = []
   for i in clothes:
@@ -113,6 +120,9 @@ def getClothes():
     clothInWardrobe = bool(i[2])
     clothGuid = int(i[0])
     clothesList.append(Clothing(clothName, clothTags, clothInWardrobe, clothGuid))
+  if sort_:
+    compatibilityScores = getCompatibilityScores()
+    clothesList = sorted(clothesList, key=lambda x: compatibilityScores[x.guid], reverse=True)
   return clothesList
 
 def getClothing(guid):
@@ -138,8 +148,42 @@ class Clothing:
     return "[Clothing]" + str({"name": self.name, "guid": self.guid,
         "tags": self.tags, "inWardrobe": self.inWardrobe})
 
-def createTables(reset=False):
-  createTable("Clothes", [["Name", "TEXT UNIQUE"], ["InWardrobe", "SMALLINT DEFAULT 1"]], reset)
+def incrementCompatibility(clothId1, clothId2):
+  clothId1, clothId2 = sorted((clothId1, clothId2))
+  compatibility = executeDBCode("SELECT * FROM ClothCompatibilityUsage WHERE ClothId1 = %s AND ClothId2 = %s LIMIT 1" % (clothId1, clothId2), True)
+  if len(compatibility) > 0:
+    executeDBCode("UPDATE ClothCompatibilityUsage SET Usage = Usage + 1 WHERE ClothId1 = %s AND ClothId2 = %s" % (clothId1, clothId2))
+  else:
+    insert("ClothCompatibilityUsage", ("ClothId1", "ClothId2"), (clothId1, clothId2))
+
+def getCompatibilityScores():
+  compatibilityScores = {}
+  for i in getClothesDB():
+    i1 = i[0]
+    if i[2] > 0:
+      compatibilityScore = 0
+      for j in getClothesDB():
+        j1 = j[0]
+        if not j[2] > 0:
+          clothId1, clothId2 = sorted((i1, j1))
+          clothingCompatibility = executeDBCode("SELECT * FROM ClothCompatibilityUsage WHERE ClothId1 = %s AND ClothId2 = %s LIMIT 1" % (clothId1, clothId2), True)
+          if len(clothingCompatibility) > 0:
+            compatibilityScore += clothingCompatibility[0][3]
+      compatibilityScores[i1] = compatibilityScore
+    else:
+      compatibilityScores[i1] = 0
+  return compatibilityScores
+
+def incrementAllCompatibility():
+  clothesIds = [i[0] for i in getClothsByStatus(False)]
+  if len(clothesIds) > 1:
+    for i in range(len(clothesIds)):
+      for j in range(i + 1, len(clothesIds)):
+        incrementCompatibility(clothesIds[i], clothesIds[j])
+
+def createTables(reset=True):
+  createTable("Clothes", [["Name", "TEXT UNIQUE"], ["InWardrobe", "SMALLINT DEFAULT 1"], ["Usage", "INTEGER DEFAULT 0"]], reset)
+  createTable("ClothCompatibilityUsage", [["ClothId1", "INTEGER"], ["ClothId2", "INTEGER"], ["Usage", "INT DEFAULT 1"], ["UNIQUE(ClothId1, ClothId2)", "ON CONFLICT IGNORE"]], reset)
   createTable("Tags", [["Name", "TEXT UNIQUE"]], reset)
   createTable("ClothesTagsAssociations", [["ClothId", "INTEGER"], ["TagId", "INTEGER"], ["UNIQUE(ClothId, TagId)", "ON CONFLICT IGNORE"]], reset)
 
@@ -147,6 +191,11 @@ def createTables(reset=False):
 def index():
   createTables()
   return render_template('landing_menu.html')
+
+@app.route('/save_changes')
+def save_changes():
+  incrementAllCompatibility()
+  return redirect(url_for('edit_wardrobe'))
 
 @app.route('/clear_wardrobe')
 def clear_wardrobe():
@@ -163,7 +212,6 @@ def edit_wardrobe():
     return redirect(url_for('edit_wardrobe', selectedTags=tags))
   elif 'untag' in request.args:
     selectedTags = [int(i) for i in request.args.getlist('selectedTags')]
-    #print selectedTags
     selectedTags.remove(int(request.args['untag']))
     tags = selectedTags
     if len(selectedTags) > 0:
@@ -211,7 +259,6 @@ def use_wardrobe():
     return redirect(url_for('use_wardrobe', selectedTags=tags))
   elif 'untag' in request.args:
     selectedTags = [int(i) for i in request.args.getlist('selectedTags')]
-    #print selectedTags
     selectedTags.remove(int(request.args['untag']))
     tags = selectedTags
     if len(selectedTags) > 0:
@@ -222,14 +269,14 @@ def use_wardrobe():
     selectedTags = [int(i) for i in request.args.getlist('selectedTags')]
     tags = selectedTags
     clothGuids = getClothesByTagIds(tags)
-    allClothes = getClothes()
+    allClothes = getClothes(True)
     filteredClothes = filter(lambda x: x.guid in clothGuids, allClothes)
     tagUsage = getTagUsage()
     displayTags = filter(lambda x: x[0] in tagUsage and tagUsage[x[0]] > 0, getTags())
     return render_template('use_wardrobe.html', clothes=filteredClothes, tags=displayTags, filtered=True, selectedTags=tags)
   tagUsage = getTagUsage()
   displayTags = filter(lambda x: x[0] in tagUsage and tagUsage[x[0]] > 0, getTags())
-  return render_template('use_wardrobe.html', clothes=getClothes(), tags=displayTags, filtered=False)
+  return render_template('use_wardrobe.html', clothes=getClothes(True), tags=displayTags, filtered=False)
 
 @app.route('/new_clothing', methods=['POST'])
 def new_clothing():
