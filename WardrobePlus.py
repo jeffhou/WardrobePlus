@@ -231,10 +231,6 @@ def edit_wardrobe():
   displayTags = filter(lambda x: x[0] in tagUsage and tagUsage[x[0]] > 0, getTags())
   return render_template('edit_wardrobe.html', clothes=getClothes(), tags=displayTags, filtered=False)
 
-@app.route('/begin_session')
-def begin_session():
-  return redirect(url_for("sessionCheckout"))
-
 @app.route('/checkout')
 def checkout():
   if 'clothingGUID' in request.args:
@@ -288,18 +284,9 @@ def new_clothing():
     tagCloth(newClothGuid, i)
   return redirect(url_for("edit_wardrobe"))
 
-@app.route('/remove_clothing', methods=['GET', 'POST'])
-def remove_clothing():
-  return render_template('delete_clothing.html', clothes=getClothes())
-
 @app.route('/delete_cloth/<int:id>')
 def delete_cloth(id):
   delCloth(id)
-  return redirect(url_for("edit_wardrobe"))
-
-def delete_clothing():
-  clothGuid = int(request.form.get('comp_select'))
-  delCloth(clothGuid)
   return redirect(url_for("edit_wardrobe"))
 
 @app.route('/add_sample_set')
@@ -317,20 +304,6 @@ def add_sample_set():
     tagCloth(guid, i.split()[0])
     tagCloth(guid, i.split()[1])
   return redirect(url_for("edit_wardrobe"))
-
-@app.route('/session#checkout')
-def sessionCheckout():
-  if 'clothingGUID' in request.args:
-    clothingGUID = int(request.args['clothingGUID'])
-    getClothing(clothingGUID).checkout()
-  return render_template('session.html', clothes=getClothes())
-
-@app.route('/session#return')
-def sessionReturn():
-  if 'clothingGUID' in request.args:
-    clothingGUID = int(request.args['clothingGUID'])
-    getClothing(clothingGUID).checkin()
-  return render_template('session.html', clothes=getClothes())
 
 if __name__ == '__main__':
   app.run('0.0.0.0', debug=True, port=8080)
