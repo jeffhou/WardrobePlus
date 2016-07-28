@@ -1,23 +1,73 @@
-from flask import Flask, render_template, redirect, url_for, request, g
-import sqlite3
-import inspect, os
+# Documentation seen in this file was created based on recommendations from
+# http://docs.python-guide.org/en/latest/writing/documentation/
 
+from flask import Flask, render_template, redirect, url_for, request, g
+import sqlite3, inspect, os
+
+# Import reqs: sqlite3
+# Usage: getDB()
 def connect_db(dbName):
+  """Establishes SQLite connection.
+
+  Args:
+    dbName (str): The name/path of the SQLite database.
+
+  Returns:
+    sqlite3.connection
+
+  """
   dbConnection = sqlite3.connect(dbName)
   return dbConnection
 
+# Import reqs: from flask import g
+# Dependencies: connect_db()
+# Usage: executeDBCode()
 def getDB():
+  """Emulates a global singleton pattern for the connection to the SQLite DB
+
+  TODO: Extract magic string "closet.db" into global constant.
+  TODO: Extract dependency on flask.g so that this function and other SQLite
+        functions can be encapsulated into a separate module and/or class.
+
+  Returns:
+    sqlite3.connection: Connection to the main DB.
+
+  """
   if not hasattr(g, 'sqlite_db'):
     g.sqlite_db = connect_db("closet.db")
   return g.sqlite_db
 
+# Dependencies: executeDBCode()
+# Usage: createTables()
 def createTable(tableName, tableAttributes, force=False):
+  """ Wrapper for SQLite code to create table
+
+  TODO: refactor the format string usage into built-in SQL strings
+
+  Args:
+    tableName (str): name of table
+    tableAttributes ([(str, str), ..]): attributes of the table, mostly columns
+    force (bool): Drops the table if True, essentially clearing the table
+
+  """
   if force:
     executeDBCode("DROP TABLE IF EXISTS %s" % tableName)
   columns = ", ".join([" ".join(attributePair) for attributePair in tableAttributes])
   executeDBCode("CREATE TABLE %s(Id INTEGER PRIMARY KEY AUTOINCREMENT, %s);" % (tableName, columns))
 
+# Dependencies: getDB()
+# Usage: TOO MANY
 def executeDBCode(dbCode, returnsValues=False):
+  """ Wrapper for Generic SQLite code
+
+  TODO: outline the actual usage of this function.
+
+  Args:
+    tableName (str): name of table
+    tableAttributes ([(str, str), ..]): attributes of the table, mostly columns
+    force (bool): Drops the table if True, essentially clearing the table
+
+  """
   connection = getDB()
   with connection:
     cursor = connection.cursor()
