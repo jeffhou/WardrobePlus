@@ -78,12 +78,32 @@ def executeDBCode(dbCode, returnsValues=False):
     except Exception as e:
       print "EXCEPT (%s): " % (dbCode,) + str(e)
 
+# Dependencies: executeDBCode()
+# Usage: addCloth(), addTag(), tagCloth(), incrementCompatibility()
 def insert(table, keys, values):
+  """ Wrapper for SQLite INSERT
+
+  TODO: standardize name of parameters across functions
+
+  Args:
+    table (str): name of table
+    keys ([str]): names of columns
+    values ([str]): names of values, ordered the same as keys
+
+  """
   keysString = ",".join([str(i) for i in keys])
   valuesString = ",".join([str(i) for i in values])
   executeDBCode("INSERT INTO %s(%s) VALUES(%s)" % (table, keysString, valuesString))
 
+# Dependencies: insert()
+# Usage: new_clothing(), add_sample_set()
 def addCloth(clothName):
+  """ Inserts new cloth into DB
+
+  Args:
+    clothName (str): name of cloth
+
+  """
   insert("Clothes", ["Name"], ["'%s'" % clothName])
 
 def addTag(tagName):
