@@ -37,19 +37,24 @@ def getClothing(guid):
       return i
 
 class Clothing:
+
   def __init__(self, name, tags=[], inWardrobe=True, guid=-1):
     self.name = str(name)
     self.guid = guid
     self.tags = tags
     self.inWardrobe = inWardrobe
+
   def isInWardrobe(self):
     return self.inWardrobe
+
   def checkin(self):
     self.inWardrobe = True
     getDB().updateClothStatus(self.guid, 1)
+
   def checkout(self):
     self.inWardrobe = False
     getDB().updateClothStatus(self.guid, 0)
+
   def __str__(self):
     return "[Clothing]" + str({"name": self.name, "guid": self.guid,
         "tags": self.tags, "inWardrobe": self.inWardrobe})

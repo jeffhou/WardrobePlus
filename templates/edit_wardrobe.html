@@ -1,4 +1,5 @@
 <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}" />
+<script language="JavaScript" type="text/javascript" src="{{ url_for('static', filename='jquery-3.1.0.min.js') }}"></script>
 {% include 'wardrobe_editor/sidenav.html' %}
 <div id="main">
   <div id="top-bar">
@@ -15,8 +16,13 @@
       <div class="clothing-name">
         {{ i.name }}
       </div>
+      <div class="clothing-tags" style="display: none">
+        {%- for j in range(i.tags|length) -%}
+          {{- i.tags[j][1] -}}{%- if j != i.tags|length - 1 -%}, {% endif -%}
+        {%- endfor -%}
+      </div>
       <div style="margin-top: 15px">
-        <a href="#" class="cloth-button"><i class="fa fa-search"></i></a>
+        <a href="#" class="cloth-button view-button"><i class="fa fa-search"></i></a>
         <a href="#" class="cloth-button"><i class="fa fa-pencil-square-o"></i></a>
       </div>
       <div style="margin-top: 5px">
@@ -28,4 +34,5 @@
   </div>
 </div>
 {% include 'wardrobe_editor/new_clothing_modal.html' %}
+{% include 'wardrobe_editor/view_clothing_modal.html' %}
 <script src="https://use.fontawesome.com/8500ed540a.js"></script>

@@ -1,0 +1,49 @@
+<div id="view-modal" class="modal">
+  <!-- Modal content -->
+  <div class="modal-content">
+    <div class="form">
+      <div class="form-title">View Clothing</div>
+        <div class="form-block">
+          <div class="form-input-title">Name: </div>
+          <div class="view-clothing-value" id="view-clothing-name">123</div>
+        </div>
+        <div class="form-block">
+          <div class="form-input-title">Tags: </div>
+          <div class="view-clothing-value" id="view-clothing-tags">123142</div>
+        </div>
+      </div>
+  </div>
+</div>
+<script>
+  // Get the modal
+  var view_modal = document.getElementById('view-modal');
+
+  // Get the button that opens the modal
+  var btn = document.getElementById("add-clothing");
+
+  var cancel = document.getElementById("cancel");
+
+  // When the user clicks the button, open the modal
+  btn.onclick = function() {
+      view_modal.style.display = "block";
+  }
+
+  // When the user clicks anywhere outside of the modal, close it
+  window.onclick = function(event) {
+      if (event.target == view_modal || event.target == cancel) {
+          view_modal.style.display = "none";
+          var tf = document.getElementById("tf");
+          tf.innerHTML = "<div contenteditable=\"true\" style = \"width:100%;\" id=\"editable\"></div>";
+          var name_field = document.getElementById("name-field");
+          name_field.value = "";
+          // TODO: clear tags completely
+      }
+  }
+
+  $('.view-button').on("click", function() {
+    $("#view-clothing-name").text($(this).parent().siblings(".clothing-name")[0].innerText);
+    $("#view-clothing-tags").text($(this).parent().siblings(".clothing-tags")[0].innerText);
+    $('#view-modal').css("display", "block");
+  	//$('#value-123')[0].value = $(this).children()[0].innerText;
+  })
+</script>
