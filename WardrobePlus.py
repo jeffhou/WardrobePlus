@@ -2,191 +2,27 @@
 # http://docs.python-guide.org/en/latest/writing/documentation/
 
 from flask import Flask, render_template, redirect, url_for, request, g
-import sqlite3, inspect, os
-
-# Import reqs: sqlite3
-# Usage: getDB()
-def connect_db(dbName):
-  """Establishes SQLite connection.
-
-  Args:
-    dbName (str): The name/path of the SQLite database.
-
-  Returns:
-    sqlite3.connection
-
-  """
-  dbConnection = sqlite3.connect(dbName)
-  return dbConnection
-
-# Import reqs: from flask import g
-# Dependencies: connect_db()
-# Usage: executeDBCode()
-def getDB():
-  """Emulates a global singleton pattern for the connection to the SQLite DB
-
-  TODO: Extract magic string "closet.db" into global constant.
-  TODO: Extract dependency on flask.g so that this function and other SQLite
-        functions can be encapsulated into a separate module and/or class.
-
-  Returns:
-    sqlite3.connection: Connection to the main DB.
-
-  """
-  if not hasattr(g, 'sqlite_db'):
-    g.sqlite_db = connect_db("closet.db")
-  return g.sqlite_db
-
-# Dependencies: executeDBCode()
-# Usage: createTables()
-def createTable(tableName, tableAttributes, force=False):
-  """ Wrapper for SQLite code to create table
-
-  TODO: refactor the format string usage into built-in SQL strings
-
-  Args:
-    tableName (str): name of table
-    tableAttributes ([(str, str), ..]): attributes of the table, mostly columns
-    force (bool): Drops the table if True, essentially clearing the table
-
-  """
-  if force:
-    executeDBCode("DROP TABLE IF EXISTS %s" % tableName)
-  columns = ", ".join([" ".join(attributePair) for attributePair in tableAttributes])
-  executeDBCode("CREATE TABLE %s(Id INTEGER PRIMARY KEY AUTOINCREMENT, %s);" % (tableName, columns))
-
-# Dependencies: getDB()
-# Usage: TOO MANY
-def executeDBCode(dbCode, returnsValues=False):
-  """ Wrapper for Generic SQLite code
-
-  TODO: outline the actual usage of this function.
-
-  Args:
-    tableName (str): name of table
-    tableAttributes ([(str, str), ..]): attributes of the table, mostly columns
-    force (bool): Drops the table if True, essentially clearing the table
-
-  """
-  connection = getDB()
-  with connection:
-    cursor = connection.cursor()
-    try:
-      cursor.execute(dbCode)
-      if returnsValues:
-        return cursor.fetchall()
-    except Exception as e:
-      print "EXCEPT (%s): " % (dbCode,) + str(e)
-
-# Dependencies: executeDBCode()
-# Usage: addCloth(), addTag(), tagCloth(), incrementCompatibility()
-def insert(table, keys, values):
-  """ Wrapper for SQLite INSERT
-
-  TODO: standardize name of parameters across functions
-
-  Args:
-    table (str): name of table
-    keys ([str]): names of columns
-    values ([str]): names of values, ordered the same as keys
-
-  """
-  keysString = ",".join([str(i) for i in keys])
-  valuesString = ",".join([str(i) for i in values])
-  executeDBCode("INSERT INTO %s(%s) VALUES(%s)" % (table, keysString, valuesString))
-
-# Dependencies: insert()
-# Usage: new_clothing(), add_sample_set()
-def addCloth(clothName):
-  """ Inserts new cloth into DB
-
-  Args:
-    clothName (str): name of cloth
-
-  """
-  insert("Clothes", ["Name"], ["'%s'" % clothName])
-
-def addTag(tagName):
-  insert("Tags", ["Name"], ["'%s'" % tagName])
-
-def getClothGuidByName(clothName):
-  return executeDBCode("SELECT * FROM Clothes WHERE Name='%s'" % clothName, True)[0][0]
-
-def getCloth(clothId):
-  return executeDBCode("SELECT * FROM Clothes WHERE Id=%s" % (clothId), True)[0]
-
-def getClothesDB():
-  return executeDBCode("SELECT * FROM Clothes", True)
-
-def getClothsByStatus(status=True):
-  if status:
-    inWardrobe = 1
-  else:
-    inWardrobe = 0
-  return executeDBCode("SELECT * FROM Clothes WHERE InWardrobe = %s" % (inWardrobe,), True)
-
-def delClothTagAssociations(clothId):
-  executeDBCode("DELETE FROM ClothesTagsAssociations WHERE ClothId=%s" % (clothId))
-
-def delCloth(clothId):
-  executeDBCode("DELETE FROM Clothes WHERE Id=%s" % (clothId))
-  delClothTagAssociations(clothId)
-
-def getTag(tagId):
-  return executeDBCode("SELECT * FROM Tags WHERE Id=%s" % (tagId), True)[0]
-
-def getTagUsage():
-  usageDict = {}
-  for i in executeDBCode("SELECT t.id, c.cnt FROM Tags t INNER JOIN (SELECT TagId, count(TagId) as cnt FROM ClothesTagsAssociations GROUP BY TagId) c ON t.id = c.TagId", True):
-    usageDict[i[0]] = i[1]
-  return usageDict
-
-def getTags():
-  return [(i[0], str(i[1])) for i in executeDBCode("SELECT * FROM Tags", True)]
-
-def delTag(tagId):
-  executeDBCode("DELETE FROM Tags WHERE Id=%s" % (tagId))
-
-def delClothesTagsAssociations(clothId, tagId):
-  executeDBCode("DELETE FROM ClothesTagsAssociations WHERE ClothId=%s AND TagId=%s" % (clothId, tagId))
-
-def tagCloth(clothId, tagString):
-  tagString = tagString.lower()
-  addTag(tagString)
-  tagId = executeDBCode("SELECT * FROM Tags WHERE Name='%s'" % (tagString), True)[0][0]
-  insert("ClothesTagsAssociations", ["ClothId", "TagId"], [clothId, tagId])
-
-def getTagIdsForCloth(clothId):
-  return [i[2] for i in executeDBCode("SELECT * FROM ClothesTagsAssociations WHERE ClothId=%s" % (clothId), True)]
-
-def getTagNamesByClothId(clothId):
-  tagIds = getTagIdsForCloth(clothId)
-  return [str(i[1]) for i in executeDBCode("SELECT * FROM Tags WHERE Id IN (%s)" % ", ".join([str(i) for i in tagIds]), True)]
-
-def getTagsByClothId(clothId):
-  tagIds = getTagIdsForCloth(clothId)
-  return [(i[0], str(i[1])) for i in executeDBCode("SELECT * FROM Tags WHERE Id IN (%s)" % ", ".join([str(i) for i in tagIds]), True)]
-
-def getClothesByTagIds(tagIds):
-  unionQueryString = "SELECT DISTINCT ClothId from ClothesTagsAssociations C WHERE (%s)" % " AND ".join([("EXISTS (SELECT 1 FROM ClothesTagsAssociations WHERE TagId=%s AND ClothId=C.ClothId)" % str(i)) for i in tagIds])
-  return [i[0] for i in executeDBCode(unionQueryString, True)]
-
-def updateClothStatus(clothGuid, statusID):
-  executeDBCode("UPDATE Clothes SET InWardrobe=%s WHERE Id=%s" % (str(statusID), clothGuid))
+import inspect, os
+from WardrobeDB import WardrobeDB
 
 app = Flask(__name__)
+
+def getDB():
+  if not hasattr(g, 'sqlite_db'):
+    g.sqlite_db = WardrobeDB()
+  return g.sqlite_db
 
 @app.teardown_appcontext
 def closeDB(error):
   if hasattr(g, 'sqlite_db'):
-    g.sqlite_db.close()
+    g.sqlite_db.closeDB()
 
 def getClothes(sort_=False):
-  clothes = getClothesDB()
+  clothes = getDB().getClothesDB()
   clothesList = []
   for i in clothes:
     clothName = str(i[1])
-    clothTags = getTagsByClothId(int(i[0])) #TODO need to recast/retype this variable
+    clothTags = getDB().getTagsByClothId(int(i[0])) #TODO need to recast/retype this variable
     clothInWardrobe = bool(i[2])
     clothGuid = int(i[0])
     clothesList.append(Clothing(clothName, clothTags, clothInWardrobe, clothGuid))
@@ -210,33 +46,33 @@ class Clothing:
     return self.inWardrobe
   def checkin(self):
     self.inWardrobe = True
-    updateClothStatus(self.guid, 1)
+    getDB().updateClothStatus(self.guid, 1)
   def checkout(self):
     self.inWardrobe = False
-    updateClothStatus(self.guid, 0)
+    getDB().updateClothStatus(self.guid, 0)
   def __str__(self):
     return "[Clothing]" + str({"name": self.name, "guid": self.guid,
         "tags": self.tags, "inWardrobe": self.inWardrobe})
 
 def incrementCompatibility(clothId1, clothId2):
   clothId1, clothId2 = sorted((clothId1, clothId2))
-  compatibility = executeDBCode("SELECT * FROM ClothCompatibilityUsage WHERE ClothId1 = %s AND ClothId2 = %s LIMIT 1" % (clothId1, clothId2), True)
+  compatibility = getDB().executeDBCode("SELECT * FROM ClothCompatibilityUsage WHERE ClothId1 = %s AND ClothId2 = %s LIMIT 1" % (clothId1, clothId2), True)
   if len(compatibility) > 0:
-    executeDBCode("UPDATE ClothCompatibilityUsage SET Usage = Usage + 1 WHERE ClothId1 = %s AND ClothId2 = %s" % (clothId1, clothId2))
+    getDB().executeDBCode("UPDATE ClothCompatibilityUsage SET Usage = Usage + 1 WHERE ClothId1 = %s AND ClothId2 = %s" % (clothId1, clothId2))
   else:
-    insert("ClothCompatibilityUsage", ("ClothId1", "ClothId2"), (clothId1, clothId2))
+    getDB().insert("ClothCompatibilityUsage", ("ClothId1", "ClothId2"), (clothId1, clothId2))
 
 def getCompatibilityScores():
   compatibilityScores = {}
-  for i in getClothesDB():
+  for i in getDB().getClothesDB():
     i1 = i[0]
     if i[2] > 0:
       compatibilityScore = 0
-      for j in getClothesDB():
+      for j in getDB().getClothesDB():
         j1 = j[0]
         if not j[2] > 0:
           clothId1, clothId2 = sorted((i1, j1))
-          clothingCompatibility = executeDBCode("SELECT * FROM ClothCompatibilityUsage WHERE ClothId1 = %s AND ClothId2 = %s LIMIT 1" % (clothId1, clothId2), True)
+          clothingCompatibility = getDB().executeDBCode("SELECT * FROM ClothCompatibilityUsage WHERE ClothId1 = %s AND ClothId2 = %s LIMIT 1" % (clothId1, clothId2), True)
           if len(clothingCompatibility) > 0:
             compatibilityScore += clothingCompatibility[0][3]
       compatibilityScores[i1] = compatibilityScore
@@ -245,17 +81,17 @@ def getCompatibilityScores():
   return compatibilityScores
 
 def incrementAllCompatibility():
-  clothesIds = [i[0] for i in getClothsByStatus(False)]
+  clothesIds = [i[0] for i in getDB().getClothsByStatus(False)]
   if len(clothesIds) > 1:
     for i in range(len(clothesIds)):
       for j in range(i + 1, len(clothesIds)):
         incrementCompatibility(clothesIds[i], clothesIds[j])
 
-def createTables(reset=True):
-  createTable("Clothes", [["Name", "TEXT UNIQUE"], ["InWardrobe", "SMALLINT DEFAULT 1"], ["Usage", "INTEGER DEFAULT 0"]], reset)
-  createTable("ClothCompatibilityUsage", [["ClothId1", "INTEGER"], ["ClothId2", "INTEGER"], ["Usage", "INT DEFAULT 1"], ["UNIQUE(ClothId1, ClothId2)", "ON CONFLICT IGNORE"]], reset)
-  createTable("Tags", [["Name", "TEXT UNIQUE"]], reset)
-  createTable("ClothesTagsAssociations", [["ClothId", "INTEGER"], ["TagId", "INTEGER"], ["UNIQUE(ClothId, TagId)", "ON CONFLICT IGNORE"]], reset)
+def createTables(reset=False):
+  getDB().createTable("Clothes", [["Name", "TEXT UNIQUE"], ["InWardrobe", "SMALLINT DEFAULT 1"], ["Usage", "INTEGER DEFAULT 0"]], reset)
+  getDB().createTable("ClothCompatibilityUsage", [["ClothId1", "INTEGER"], ["ClothId2", "INTEGER"], ["Usage", "INT DEFAULT 1"], ["UNIQUE(ClothId1, ClothId2)", "ON CONFLICT IGNORE"]], reset)
+  getDB().createTable("Tags", [["Name", "TEXT UNIQUE"]], reset)
+  getDB().createTable("ClothesTagsAssociations", [["ClothId", "INTEGER"], ["TagId", "INTEGER"], ["UNIQUE(ClothId, TagId)", "ON CONFLICT IGNORE"]], reset)
 
 @app.route('/')
 def index():
@@ -291,14 +127,14 @@ def edit_wardrobe():
   elif 'selectedTags' in request.args:
     selectedTags = [int(i) for i in request.args.getlist('selectedTags')]
     tags = selectedTags
-    clothGuids = getClothesByTagIds(tags)
+    clothGuids = getDB().getClothesByTagIds(tags)
     allClothes = getClothes()
     filteredClothes = filter(lambda x: x.guid in clothGuids, allClothes)
-    tagUsage = getTagUsage()
-    displayTags = filter(lambda x: x[0] in tagUsage and tagUsage[x[0]] > 0, getTags())
+    tagUsage = getDB().getTagUsage()
+    displayTags = filter(lambda x: x[0] in tagUsage and tagUsage[x[0]] > 0, getDB().getTags())
     return render_template('edit_wardrobe.html', clothes=filteredClothes, tags=displayTags, filtered=True, selectedTags=tags)
-  tagUsage = getTagUsage()
-  displayTags = filter(lambda x: x[0] in tagUsage and tagUsage[x[0]] > 0, getTags())
+  tagUsage = getDB().getTagUsage()
+  displayTags = filter(lambda x: x[0] in tagUsage and tagUsage[x[0]] > 0, getDB().getTags())
   return render_template('edit_wardrobe.html', clothes=getClothes(), tags=displayTags, filtered=False)
 
 @app.route('/checkout')
@@ -334,29 +170,29 @@ def use_wardrobe():
   elif 'selectedTags' in request.args:
     selectedTags = [int(i) for i in request.args.getlist('selectedTags')]
     tags = selectedTags
-    clothGuids = getClothesByTagIds(tags)
+    clothGuids = getDB().getClothesByTagIds(tags)
     allClothes = getClothes(True)
     filteredClothes = filter(lambda x: x.guid in clothGuids, allClothes)
-    tagUsage = getTagUsage()
-    displayTags = filter(lambda x: x[0] in tagUsage and tagUsage[x[0]] > 0, getTags())
+    tagUsage = getDB().getTagUsage()
+    displayTags = filter(lambda x: x[0] in tagUsage and tagUsage[x[0]] > 0, getDB().getTags())
     return render_template('use_wardrobe.html', clothes=filteredClothes, tags=displayTags, filtered=True, selectedTags=tags)
-  tagUsage = getTagUsage()
-  displayTags = filter(lambda x: x[0] in tagUsage and tagUsage[x[0]] > 0, getTags())
+  tagUsage = getDB().getTagUsage()
+  displayTags = filter(lambda x: x[0] in tagUsage and tagUsage[x[0]] > 0, getDB().getTags())
   return render_template('use_wardrobe.html', clothes=getClothes(True), tags=displayTags, filtered=False)
 
 @app.route('/new_clothing', methods=['POST'])
 def new_clothing():
   clothing_name = request.form['name']
   clothing_tags = filter(lambda x: len(x) > 0, str(request.form['tags']).split(","))
-  addCloth(clothing_name)#todo show status if cloth already exists
-  newClothGuid = getClothGuidByName(clothing_name)
+  getDB().addCloth(clothing_name)#todo show status if cloth already exists
+  newClothGuid = getDB().getClothGuidByName(clothing_name)
   for i in clothing_tags:
-    tagCloth(newClothGuid, i)
+    getDB().tagCloth(newClothGuid, i)
   return redirect(url_for("edit_wardrobe"))
 
 @app.route('/delete_cloth/<int:id>')
 def delete_cloth(id):
-  delCloth(id)
+  getDB().delCloth(id)
   return redirect(url_for("edit_wardrobe"))
 
 @app.route('/add_sample_set')
@@ -369,10 +205,10 @@ def add_sample_set():
       samples.append(i + " " + j)
 
   for i in samples:
-    addCloth(i)
-    guid = getClothGuidByName(i)
-    tagCloth(guid, i.split()[0])
-    tagCloth(guid, i.split()[1])
+    getDB().addCloth(i)
+    guid = getDB().getClothGuidByName(i)
+    getDB().tagCloth(guid, i.split()[0])
+    getDB().tagCloth(guid, i.split()[1])
   return redirect(url_for("edit_wardrobe"))
 
 if __name__ == '__main__':
