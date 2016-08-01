@@ -87,15 +87,9 @@ def incrementAllCompatibility():
       for j in range(i + 1, len(clothesIds)):
         incrementCompatibility(clothesIds[i], clothesIds[j])
 
-def createTables(reset=False):
-  getDB().createTable("Clothes", [["Name", "TEXT UNIQUE"], ["InWardrobe", "SMALLINT DEFAULT 1"], ["Usage", "INTEGER DEFAULT 0"]], reset)
-  getDB().createTable("ClothCompatibilityUsage", [["ClothId1", "INTEGER"], ["ClothId2", "INTEGER"], ["Usage", "INT DEFAULT 1"], ["UNIQUE(ClothId1, ClothId2)", "ON CONFLICT IGNORE"]], reset)
-  getDB().createTable("Tags", [["Name", "TEXT UNIQUE"]], reset)
-  getDB().createTable("ClothesTagsAssociations", [["ClothId", "INTEGER"], ["TagId", "INTEGER"], ["UNIQUE(ClothId, TagId)", "ON CONFLICT IGNORE"]], reset)
-
 @app.route('/')
 def index():
-  createTables()
+  getDB().createTables()
   return render_template('landing_menu.html')
 
 @app.route('/save_changes')
@@ -105,7 +99,7 @@ def save_changes():
 
 @app.route('/clear_wardrobe')
 def clear_wardrobe():
-  createTables(True)
+  getDB().createTables(True)
   return redirect(url_for('edit_wardrobe'))
 
 @app.route('/edit_wardrobe', methods=['GET'])
