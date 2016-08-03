@@ -55,7 +55,7 @@
   cancel.onclick = function(event) {
     //reset the modal, there might be an easier way
     // TODO: extract reset/creation of the modal
-    modal.style.display = "none";
+    document.getElementById('edit-modal').style.display = "none";
     var tf = document.getElementById("edit-modal-tf");
     tf.innerHTML = "<div contenteditable=\"true\" style = \"width:100%;\" id=\"edit-modal-editable\"></div>";
     var name_field = document.getElementById("edit-modal-name-field");
@@ -65,8 +65,8 @@
   // When the user clicks anywhere outside of the modal, close it
   var modal = document.getElementById('edit-modal');
   modal.onclick = function(event) {
-    if(event.target == modal) {
-      modal.style.display = "none";
+    if(event.target == document.getElementById('edit-modal')) {
+      document.getElementById('edit-modal').style.display = "none";
       var tf = document.getElementById("edit-modal-tf");
       tf.innerHTML = "<div contenteditable=\"true\" style = \"width:100%;\" id=\"edit-modal-editable\"></div>";
       var name_field = document.getElementById("edit-modal-name-field");
