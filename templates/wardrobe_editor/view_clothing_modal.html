@@ -1,16 +1,10 @@
 <div id="view-modal" class="modal">
   <!-- Modal content -->
-  <div class="modal-content">
+  <div class="modal-content view-clothing">
     <div class="form">
-      <div class="form-title">View Clothing</div>
-        <div class="form-block">
-          <div class="form-input-title">Name: </div>
-          <div class="view-clothing-value" id="view-clothing-name">123</div>
-        </div>
-        <div class="form-block">
-          <div class="form-input-title">Tags: </div>
-          <div class="view-clothing-value" id="view-clothing-tags">123142</div>
-        </div>
+        <div class="clothing-name" id="view-clothing-name"></div>
+        <div id="view-clothing-tags"></div>
+
       </div>
   </div>
 </div>
@@ -28,8 +22,12 @@
 
   $('.view-button').on("click", function() {
     $("#view-clothing-name").text($(this).parent().siblings(".clothing-name")[0].innerText);
-    $("#view-clothing-tags").text($(this).parent().siblings(".clothing-tags")[0].innerText);
+    var tags = $(this).parent().siblings(".clothing-tags")[0].innerText.split(",");
+    var tagsHTML = "";
+    for (var i = 0; i < tags.length; i++) {
+      tagsHTML += "<div class=\"tag\" contenteditable=\"false\">" + tags[i] + "</div>"
+    }
+    $("#view-clothing-tags").html(tagsHTML);
     $('#view-modal').css("display", "block");
-  	//$('#value-123')[0].value = $(this).children()[0].innerText;
   })
 </script>
