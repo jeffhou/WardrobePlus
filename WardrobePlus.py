@@ -189,6 +189,18 @@ def new_clothing():
     getDB().tagCloth(newClothGuid, i)
   return redirect(url_for("edit_wardrobe"))
 
+@app.route('/edit_clothing', methods=['POST'])
+def edit_clothing():
+  clothing_name = request.form['name'] # TODO: should be alphanumeric and maybe also double quotes + spaces
+  clothing_guid = int(request.form['guid']) # TODO: validate
+
+  clothing_tags = filter(lambda x: len(x) > 0, str(request.form['tags']).split(","))
+  getDB().updateClothName(clothing_guid, clothing_name)#todo show status if cloth already exists
+  getDB().delClothTagAssociations(clothing_guid) #TODO: figure out what's new what's old and only delete the old ones
+  for i in clothing_tags:
+    getDB().tagCloth(clothing_guid, i)
+  return redirect(url_for("edit_wardrobe"))
+
 @app.route('/delete_cloth/<int:id>')
 def delete_cloth(id):
   getDB().delCloth(id)

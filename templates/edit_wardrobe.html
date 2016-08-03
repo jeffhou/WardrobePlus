@@ -18,12 +18,15 @@
       </div>
       <div class="clothing-tags" style="display: none">
         {%- for j in range(i.tags|length) -%}
-          {{- i.tags[j][1] -}}{%- if j != i.tags|length - 1 -%}, {% endif -%}
+          {{- i.tags[j][1] -}}{%- if j != i.tags|length - 1 -%},{% endif -%}
         {%- endfor -%}
+      </div>
+      <div class="clothing-guid" style="display: none">
+        {{- i.guid -}}
       </div>
       <div style="margin-top: 15px">
         <a href="#" class="cloth-button view-button"><i class="fa fa-search"></i></a>
-        <a href="#" class="cloth-button"><i class="fa fa-pencil-square-o"></i></a>
+        <a href="#" class="cloth-button edit-button"><i class="fa fa-pencil-square-o"></i></a>
       </div>
       <div style="margin-top: 5px">
         <a href="#" class="cloth-button"><i class="fa fa-area-chart"></i></a>
@@ -35,4 +38,5 @@
 </div>
 {% include 'wardrobe_editor/new_clothing_modal.html' %}
 {% include 'wardrobe_editor/view_clothing_modal.html' %}
+{% include 'wardrobe_editor/edit_clothing_modal.html' %}
 <script src="https://use.fontawesome.com/8500ed540a.js"></script>

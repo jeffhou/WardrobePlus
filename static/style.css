@@ -63,7 +63,7 @@
 .module-form {
 
 }
-#editable {
+#editable, #edit-modal-editable {
   padding: 3px;
   margin: 0px 3px 3px;
   height:1em;background-color:none;display:inline-block;vertical-align:top

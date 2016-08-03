@@ -1,0 +1,93 @@
+<div id="edit-modal" class="modal">
+  <!-- TODO: combine this with the new_clothing modal -->
+  <div class="modal-content">
+    <div class="form">
+      <div class="form-title">
+        Edit Clothing
+      </div>
+      <form action="{{ url_for("edit_clothing") }}" method="post">
+        <div class="form-block">
+          <div class="form-input-title">Name:</div>
+          <div><input class="form-input-textbox form-input-reg" type="text" name="name" id="edit-modal-name-field"/></div>
+        </div>
+        <div class="form-block">
+          <div class="form-input-title">Tags (comma separated):</div>
+          <div>
+            <div id="edit-modal-tf" class="form-input-textbox">
+              <div contenteditable="true" id="edit-modal-editable"></div>
+            </div>
+          </div>
+        </div>
+        <div style="display: none">
+          <input type="text" name="tags" id="edit-modal-hidden-tag-field" value=""/>
+          <input type="text" name="guid" id="edit-modal-clothing-guid" value=""/>
+        </div>
+        <div class="form-block" style="height:30px">
+          <input class="form-input-buttons" type="submit" value="Submit" style="margin-top:3px;float:left;"/>
+          <input class="form-input-buttons" type="button" value="Cancel" style="margin-top:3px;float:right;" id="edit-modal-cancel" />
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<script>
+  $('.edit-button').on("click", function() {
+    $("#edit-modal-name-field")[0].value = $(this).parent().siblings(".clothing-name")[0].innerText;
+
+    var tags = $(this).parent().siblings(".clothing-tags")[0].innerText.split(",");
+    var tagsHTML = "";
+    for (var i = 0; i < tags.length; i++) {
+      tagsHTML += "<div class=\"tag\" contenteditable=\"false\">" + tags[i] + "</div>"
+    }
+    $("#edit-modal-tf").html(tagsHTML + "<div contenteditable=\"true\" id=\"edit-modal-editable\"></div>");
+
+    var hidden_tag_field = document.getElementById("edit-modal-hidden-tag-field");
+    hidden_tag_field.value = tags + ",";
+
+    var hidden_guid_field = document.getElementById("edit-modal-clothing-guid");
+    hidden_guid_field.value = $(this).parent().siblings(".clothing-guid")[0].innerText;
+    $('#edit-modal').css("display", "block");
+  })
+</script>
+
+<script>
+  var cancel = document.getElementById("edit-modal-cancel");
+  cancel.onclick = function(event) {
+    //reset the modal, there might be an easier way
+    // TODO: extract reset/creation of the modal
+    modal.style.display = "none";
+    var tf = document.getElementById("edit-modal-tf");
+    tf.innerHTML = "<div contenteditable=\"true\" style = \"width:100%;\" id=\"edit-modal-editable\"></div>";
+    var name_field = document.getElementById("edit-modal-name-field");
+    name_field.value = "";
+  }
+
+  // When the user clicks anywhere outside of the modal, close it
+  var modal = document.getElementById('edit-modal');
+  modal.onclick = function(event) {
+    if(event.target == modal) {
+      modal.style.display = "none";
+      var tf = document.getElementById("edit-modal-tf");
+      tf.innerHTML = "<div contenteditable=\"true\" style = \"width:100%;\" id=\"edit-modal-editable\"></div>";
+      var name_field = document.getElementById("edit-modal-name-field");
+      name_field.value = "";
+      // TODO: clear tags completely, right now that doesn't work
+    }
+  }
+  var tf = document.getElementById("edit-modal-tf");
+
+  tf.onkeyup = function(){
+    if(tf.innerHTML.indexOf(",") > -1) {
+      var editable = document.getElementById("edit-modal-editable");
+      var hidden_tag_field = document.getElementById("edit-modal-hidden-tag-field");
+      hidden_tag_field.value += editable.innerHTML;
+      tf.innerHTML = tf.innerHTML.substring(0, tf.innerHTML.indexOf(editable.outerHTML)) + "<div class=\"tag\" contenteditable=\"false\">" + editable.innerHTML.substring(0, editable.innerHTML.indexOf(",")) + "</div><div contenteditable=\"true\" id=\"edit-modal-editable\"></div>";
+      editable = document.getElementById("edit-modal-editable");
+      editable.innerHTML = "";
+      tf.children[tf.children.length - 1].focus();
+    }
+  };
+  tf.onclick = function(){
+    tf.children[tf.children.length - 1].focus();
+  };
+</script>

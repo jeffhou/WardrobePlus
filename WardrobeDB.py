@@ -178,6 +178,9 @@ class WardrobeDB:
   def updateClothStatus(self, clothGuid, statusID):
     self.executeDBCode("UPDATE Clothes SET InWardrobe=%s WHERE Id=%s" % (str(statusID), clothGuid))
 
+  def updateClothName(self, clothGuid, clothName):
+    self.executeDBCode("UPDATE Clothes SET Name=%s WHERE Id=%s" % (str(clothName), clothGuid))
+
   def createTables(self, reset=False):
     self.createTable("Clothes", [["Name", "TEXT UNIQUE"], ["InWardrobe", "SMALLINT DEFAULT 1"], ["Usage", "INTEGER DEFAULT 0"]], reset)
     self.createTable("ClothCompatibilityUsage", [["ClothId1", "INTEGER"], ["ClothId2", "INTEGER"], ["Usage", "INT DEFAULT 1"], ["UNIQUE(ClothId1, ClothId2)", "ON CONFLICT IGNORE"]], reset)
