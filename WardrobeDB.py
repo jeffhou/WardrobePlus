@@ -182,7 +182,7 @@ class WardrobeDB:
     self.executeDBCode("UPDATE Clothes SET InWardrobe=%s WHERE Id=%s" % (str(statusID), clothGuid))
 
   def updateClothName(self, clothGuid, clothName):
-    self.executeDBCode("UPDATE Clothes SET Name=%s WHERE Id=%s" % (str(clothName), clothGuid))
+    self.executeDBCode("UPDATE Clothes SET Name=? WHERE Id=?", vars=(str(clothName), clothGuid))
 
   def createTables(self, reset=False):
     self.createTable("Clothes", [["Name", "TEXT UNIQUE"], ["InWardrobe", "SMALLINT DEFAULT 1"], ["Usage", "INTEGER DEFAULT 0"]], reset)
