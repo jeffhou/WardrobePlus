@@ -5,7 +5,7 @@
       <div class="form-title">
         Edit Clothing
       </div>
-      <form action="{{ url_for("edit_clothing") }}" method="post">
+      <form action="{{ url_for("edit_clothing") }}" method="post" id="edit-form">
         <div class="form-block">
           <div class="form-input-title">Name:</div>
           <div><input class="form-input-textbox form-input-reg" type="text" name="name" id="edit-modal-name-field"/></div>
@@ -90,4 +90,13 @@
   tf.onclick = function(){
     tf.children[tf.children.length - 1].focus();
   };
+</script>
+<script>
+  $('#edit-form').submit(function() {
+    var editable = document.getElementById("edit-modal-editable");
+    if(editable.innerHTML.length > 0) {
+      var hidden_tag_field = document.getElementById("edit-modal-hidden-tag-field");
+      hidden_tag_field.value += editable.innerHTML;
+    }
+  });
 </script>

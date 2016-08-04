@@ -3,7 +3,7 @@
   <div class="modal-content">
     <div class="form">
       <div class="form-title">New Clothing</div>
-      <form action="{{ url_for("new_clothing") }}" method="post">
+      <form action="{{ url_for("new_clothing") }}" method="post" id="new-form">
         <div class="form-block">
           <div class="form-input-title">Name:</div>
           <div><input class="form-input-textbox form-input-reg" type="text" name="name" id="name-field"/></div>
@@ -73,4 +73,13 @@
     var tf = document.getElementById("tf");
     tf.children[tf.children.length - 1].focus();
   };
+</script>
+<script>
+  $('#new-form').submit(function() {
+    var editable = document.getElementById("editable");
+    if(editable.innerHTML.length > 0) {
+      var hidden_tag_field = document.getElementById("hidden-tag-field");
+      hidden_tag_field.value += editable.innerHTML;
+    }
+  });
 </script>
