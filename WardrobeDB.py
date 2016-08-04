@@ -61,7 +61,7 @@ class WardrobeDB:
 
   # Dependencies: getDB()
   # Usage: TOO MANY
-  def executeDBCode(self, dbCode, returnsValues=False):
+  def executeDBCode(self, dbCode, returnsValues=False, vars=None):
     """ Wrapper for Generic SQLite code
 
     TODO: outline the actual usage of this function.
@@ -76,7 +76,10 @@ class WardrobeDB:
     with connection:
       cursor = connection.cursor()
       try:
-        cursor.execute(dbCode)
+        if vars == None:
+          cursor.execute(dbCode)
+        else:
+          cursor.execute(dbCode, vars)
         if returnsValues:
           return cursor.fetchall()
       except Exception as e:
