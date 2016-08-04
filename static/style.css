@@ -78,6 +78,17 @@
   padding: 2px 4px;
   border-radius: 7px;
 }
+.view-modal-tag {
+  vertical-align: top;
+  border: 1px solid #48f;
+  color: #48f;
+  display: inline-block;
+  margin: 2px;
+  padding: 2px 4px;
+  border-radius: 7px;
+  font-weight: 100;
+  font-size: small;
+}
 .clothing {
   color: #444;
   margin: 0 5px 10px;
@@ -249,20 +260,19 @@ input[type=text][name=search]{
   border: 1px solid black;
   text-align: center;
   font: 16px "museo-sans", Helvetica, Arial, sans-serif;
-  text-transform: uppercase;
-  height: 240px;
   font-weight: 700;
   -webkit-font-smoothing: antialiased;
   white-space: nowrap;
 }
 .clothing-name#view-clothing-name {
-  font-size: 20px;
-  padding: 25px 0;
+  font-size: 19px;
   border-bottom: 2px solid #444;
+  margin-top: 0px;
+  padding: 10px 0px;
 }
 #view-clothing-tags {
   white-space: normal;
-  margin-top: 30px;
+  margin-top: 10px;
 }
 /* The Close Button */
 .close {

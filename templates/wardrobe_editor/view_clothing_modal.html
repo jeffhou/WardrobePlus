@@ -25,7 +25,7 @@
     var tags = $(this).parent().siblings(".clothing-tags")[0].innerText.split(",");
     var tagsHTML = "";
     for (var i = 0; i < tags.length; i++) {
-      tagsHTML += "<div class=\"tag\" contenteditable=\"false\">" + tags[i] + "</div>"
+      tagsHTML += "<div class=\"view-modal-tag\" contenteditable=\"false\">" + tags[i] + "</div>"
     }
     $("#view-clothing-tags").html(tagsHTML);
     $('#view-modal').css("display", "block");
