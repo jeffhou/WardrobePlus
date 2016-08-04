@@ -58,7 +58,7 @@
   display: inline-block;
   vertical-align: top;
 }
-#tf {
+#tf, #edit-modal-tf {
   cursor: text;
 }
 .module-form {
