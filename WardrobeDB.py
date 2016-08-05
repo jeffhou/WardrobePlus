@@ -113,8 +113,16 @@ class WardrobeDB:
     """
     self.insert("Clothes", ["Name"], ["'%s'" % clothName])
 
-  def addTag(self, tagName):
-    self.insert("Tags", ["Name"], ["'%s'" % tagName])
+  # Dependencies: tagExists()
+  # Usage: tagCloth()
+  def addTag(self, name):
+    if not self.tagExists(name):
+      self.insert("Tags", ["Name"], ["'%s'" % name])
+
+  # Dependencies: executeDBCode()
+  # Usage: addTag()
+  def tagExists(self, name):
+    return self.executeDBCode("select exists(select 1 from Tags where Name=?)", True, vars=(name,))[0][0] == 1
 
   def getClothGuidByName(self, clothName):
     return self.executeDBCode("SELECT * FROM Clothes WHERE Name='%s'" % clothName, True)[0][0]
