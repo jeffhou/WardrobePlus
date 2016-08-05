@@ -259,7 +259,7 @@ input[type=text][name=search]{
   border-radius: 12px;
   border: 1px solid black;
   text-align: center;
-  font: 16px "museo-sans", Helvetica, Arial, sans-serif;
+  font: 16px "Courier New", monospace;
   font-weight: 700;
   -webkit-font-smoothing: antialiased;
   white-space: nowrap;
