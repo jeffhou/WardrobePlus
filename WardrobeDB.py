@@ -181,6 +181,9 @@ class WardrobeDB:
   def updateClothStatus(self, clothGuid, statusID):
     self.executeDBCode("UPDATE Clothes SET InWardrobe=%s WHERE Id=%s" % (str(statusID), clothGuid))
 
+  def updateAllClothesStatus(self, statusID):
+    self.executeDBCode("UPDATE Clothes SET InWardrobe=?", vars=(statusID,))
+
   def updateClothName(self, clothGuid, clothName):
     self.executeDBCode("UPDATE Clothes SET Name=? WHERE Id=?", vars=(str(clothName), clothGuid))
 

@@ -102,6 +102,11 @@ def save_changes():
   incrementAllCompatibility()
   return redirect(url_for('edit_wardrobe'))
 
+@app.route('/return_all')
+def return_all():
+  getDB().updateAllClothesStatus(1)
+  return redirect(url_for('use_wardrobe'))
+
 @app.route('/clear_wardrobe')
 def clear_wardrobe():
   getDB().createTables(True)
