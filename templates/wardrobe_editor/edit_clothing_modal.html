@@ -33,19 +33,21 @@
 <script>
   $('.edit-button').on("click", function() {
     $("#edit-modal-name-field")[0].value = $(this).parent().siblings(".clothing-name")[0].innerText;
-
-    var tags = $(this).parent().siblings(".clothing-tags")[0].innerText.split(",");
+    var tagsString = $(this).parent().siblings(".clothing-tags")[0].innerText;
     var tagsHTML = "";
-    for (var i = 0; i < tags.length; i++) {
-      tagsHTML += "<div class=\"tag\" contenteditable=\"false\">" + tags[i] + "</div>"
-    }
-    $("#edit-modal-tf").html(tagsHTML + "<div contenteditable=\"true\" id=\"edit-modal-editable\"></div>");
 
-    var hidden_tag_field = document.getElementById("edit-modal-hidden-tag-field");
-    hidden_tag_field.value = tags + ",";
+    if(tagsString != ""){
+      var tags = tagsString.split(",");
+      for (var i = 0; i < tags.length; i++) {
+        tagsHTML += "<div class=\"tag\" contenteditable=\"false\">" + tags[i] + "<div class='close'>X</div></div>"
+      }
+    }
+
+    $("#edit-modal-tf").html(tagsHTML + "<div contenteditable=\"true\" id=\"edit-modal-editable\"></div>");
 
     var hidden_guid_field = document.getElementById("edit-modal-clothing-guid");
     hidden_guid_field.value = $(this).parent().siblings(".clothing-guid")[0].innerText;
+
     $('#edit-modal').css("display", "block");
   })
 </script>
@@ -77,25 +79,34 @@
   var tf = document.getElementById("edit-modal-tf");
 
   tf.onkeyup = function(){
+    var tf = document.getElementById("tf");
     if(tf.innerHTML.indexOf(",") > -1) {
       var editable = document.getElementById("edit-modal-editable");
-      var hidden_tag_field = document.getElementById("edit-modal-hidden-tag-field");
-      hidden_tag_field.value += editable.innerHTML;
-      tf.innerHTML = tf.innerHTML.substring(0, tf.innerHTML.indexOf(editable.outerHTML)) + "<div class=\"tag\" contenteditable=\"false\">" + editable.innerHTML.substring(0, editable.innerHTML.indexOf(",")) + "</div><div contenteditable=\"true\" id=\"edit-modal-editable\"></div>";
+      tf.innerHTML = tf.innerHTML.substring(0, tf.innerHTML.indexOf(editable.outerHTML)) + "<div class=\"tag\" contenteditable=\"false\">" + editable.innerHTML.substring(0, editable.innerHTML.indexOf(",")) + "<div class='close'>X</div></div><div contenteditable=\"true\" id=\"edit-modal-editable\"></div>";
       editable = document.getElementById("edit-modal-editable");
       editable.innerHTML = "";
       tf.children[tf.children.length - 1].focus();
     }
   };
-  tf.onclick = function(){
+  tf.onclick = function(event){
+    if(event.target.className == "close"){
+      event.target.parentNode.parentNode.removeChild(event.target.parentNode);
+    }
     tf.children[tf.children.length - 1].focus();
   };
 </script>
 <script>
   $('#edit-form').submit(function() {
+
+    var hidden_tag_field = document.getElementById("edit-modal-hidden-tag-field");
+
+    var tags = $('#edit-modal-tf').children().slice(0, $('#edit-modal-tf').children().length - 1)
+    for(var i = 0; i < tags.length; i++) {
+      var tag = tags[i];
+      hidden_tag_field.value += tag.innerText.substring(0, tag.innerText.length - 1) + ",";
+    }
     var editable = document.getElementById("edit-modal-editable");
     if(editable.innerHTML.length > 0) {
-      var hidden_tag_field = document.getElementById("edit-modal-hidden-tag-field");
       hidden_tag_field.value += editable.innerHTML;
     }
   });

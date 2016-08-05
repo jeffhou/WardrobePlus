@@ -276,10 +276,11 @@ input[type=text][name=search]{
 }
 /* The Close Button */
 .close {
-  color: #aaaaaa;
-  float: right;
-  font-size: 28px;
-  font-weight: bold;
+  color: #9bf;
+  font-size: 8px;
+  vertical-align: middle;
+  display: inline;
+  margin-left: 2px;
 }
 
 .close:hover,

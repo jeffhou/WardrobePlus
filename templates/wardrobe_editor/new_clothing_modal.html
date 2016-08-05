@@ -61,24 +61,30 @@
     var tf = document.getElementById("tf");
     if(tf.innerHTML.indexOf(",") > -1) {
       var editable = document.getElementById("editable");
-      var hidden_tag_field = document.getElementById("hidden-tag-field");
-      hidden_tag_field.value += editable.innerHTML;
-        tf.innerHTML = tf.innerHTML.substring(0, tf.innerHTML.indexOf(editable.outerHTML)) + "<div class=\"tag\" contenteditable=\"false\">" + editable.innerHTML.substring(0, editable.innerHTML.indexOf(",")) + "</div><div contenteditable=\"true\" id=\"editable\"></div>";
+      tf.innerHTML = tf.innerHTML.substring(0, tf.innerHTML.indexOf(editable.outerHTML)) + "<div class=\"tag\" contenteditable=\"false\">" + editable.innerHTML.substring(0, editable.innerHTML.indexOf(",")) + "<div class='close'>X</div></div><div contenteditable=\"true\" id=\"editable\"></div>";
       editable = document.getElementById("editable");
       editable.innerHTML = "";
       tf.children[tf.children.length - 1].focus();
     }
   };
-  tf.onclick = function(){
+  tf.onclick = function(event){
+    if(event.target.className == "close"){
+      event.target.parentNode.parentNode.removeChild(event.target.parentNode);
+    }
     var tf = document.getElementById("tf");
     tf.children[tf.children.length - 1].focus();
   };
 </script>
 <script>
   $('#new-form').submit(function() {
+    var hidden_tag_field = document.getElementById("hidden-tag-field");
+    var tags =$('#tf').children().slice(0, $('#tf').children().length - 1);
+    for(var i = 0; i < tags.length; i++) {
+      var tag = tags[i];
+      hidden_tag_field.value += tag.innerText.substring(0, tag.innerText.length - 1) + ",";
+    }
     var editable = document.getElementById("editable");
     if(editable.innerHTML.length > 0) {
-      var hidden_tag_field = document.getElementById("hidden-tag-field");
       hidden_tag_field.value += editable.innerHTML;
     }
   });
