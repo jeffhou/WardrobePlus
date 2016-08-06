@@ -50,10 +50,36 @@
 }
 
 .clothing-name {
-  margin-top: 10px;
-  border-bottom: 1px solid #444;
-  padding: 15px 0px;
+  vertical-align: middle;
+  height: 60px;
+  position: relative;
+  width: calc(100% + 20px);
+  margin-left: -10px;
+  padding-top: 20px;
+  margin-top: 5px;
 }
+
+.clothing-divider {
+  width: 100%;
+  border-bottom: 1px solid #444;
+}
+
+.clothing-name-adjustor {
+  display: none;
+}
+
+.clothing-name-text {
+  -webkit-transform: translateY(-40%);
+  -moz-transform: translateY(-40%);
+  vertical-align: middle;
+  white-space: normal;
+  word-wrap: normal;
+  overflow: hidden;
+  position: absolute;
+  width: 100%;
+  top: 50%;
+}
+
 #search {
   display: inline-block;
   vertical-align: top;
@@ -92,7 +118,7 @@
 .clothing {
   color: #444;
   margin: 0 5px 10px;
-  padding: 20px;
+  padding: 0px 20px 20px 20px;
   display: inline-block;
   border-radius: 6px;
   border: 1px solid black;
@@ -100,7 +126,7 @@
   text-align: center;
   font: 16px "museo-sans", Helvetica, Arial, sans-serif;
   text-transform: uppercase;
-  height: 120px;
+  height: 140px;
   vertical-align: middle;
   font-weight: 700;
   -webkit-font-smoothing: antialiased;

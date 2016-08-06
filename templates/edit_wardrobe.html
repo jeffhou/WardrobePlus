@@ -14,8 +14,9 @@
     {% for i in clothes %}
     <div class="clothing">
       <div class="clothing-name">
-        {{ i.name }}
+        <div class="clothing-name-text">{{ i.name }}</div>
       </div>
+      <div class="clothing-divider"></div>
       <div class="clothing-tags" style="display: none">
         {%- for j in range(i.tags|length) -%}
           {{- i.tags[j][1] -}}{%- if j != i.tags|length - 1 -%},{% endif -%}
@@ -24,11 +25,11 @@
       <div class="clothing-guid" style="display: none">
         {{- i.guid -}}
       </div>
-      <div style="margin-top: 15px">
+      <div style="margin-top: 12px">
         <a href="#" class="cloth-button view-button"><i class="fa fa-search"></i></a>
         <a href="#" class="cloth-button edit-button"><i class="fa fa-pencil-square-o"></i></a>
       </div>
-      <div style="margin-top: 5px">
+      <div style="margin-top: 6px">
         <a href="#" class="cloth-button"><i class="fa fa-area-chart"></i></a>
         <a href="{{ url_for('delete_cloth', id=i.guid)}}" class="cloth-button"><i class="fa fa-trash-o"></i></a>
       </div>
