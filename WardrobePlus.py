@@ -92,6 +92,11 @@ def incrementAllCompatibility():
       for j in range(i + 1, len(clothesIds)):
         incrementCompatibility(clothesIds[i], clothesIds[j])
 
+def incrementAllUsageStats():
+  clothesIds = [i[0] for i in getDB().getClothsByStatus(False)]
+  for i in clothesIds:
+    getDB().incrementUsage(i)
+
 @app.route('/')
 def index():
   getDB().createTables()
@@ -100,6 +105,7 @@ def index():
 @app.route('/save_changes')
 def save_changes():
   incrementAllCompatibility()
+  incrementAllUsageStats()
   return redirect(url_for('edit_wardrobe'))
 
 @app.route('/return_all')
