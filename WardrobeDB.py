@@ -198,6 +198,9 @@ class WardrobeDB:
   def incrementUsage(self, clothGuid):
     self.insert("ClothesUsage", ["ClothId"], [clothGuid])
 
+  def getUsage(self, clothGuid):
+    return self.executeDBCode("SELECT Count(1) FROM ClothesUsage WHERE ClothId=?;", True, vars=(clothGuid,))[0][0]
+
   def createTables(self, reset=False):
     self.createTable("Clothes", [["Name", "TEXT UNIQUE"], ["InWardrobe", "SMALLINT DEFAULT 1"], ["Usage", "INTEGER DEFAULT 0"]], reset)
     self.createTable("ClothCompatibilityUsage", [["ClothId1", "INTEGER"], ["ClothId2", "INTEGER"], ["Usage", "INT DEFAULT 1"], ["UNIQUE(ClothId1, ClothId2)", "ON CONFLICT IGNORE"]], reset)

@@ -25,7 +25,9 @@ def getClothes(sort_=False):
     clothTags = getDB().getTagsByClothId(int(i[0])) #TODO need to recast/retype this variable
     clothInWardrobe = bool(i[2])
     clothGuid = int(i[0])
-    clothesList.append(Clothing(clothName, clothTags, clothInWardrobe, clothGuid))
+    clothUsage = getDB().getUsage(clothGuid)
+    clothesList.append(Clothing(clothName, clothTags, clothInWardrobe, clothGuid, clothUsage))
+
   if sort_:
     compatibilityScores = getCompatibilityScores()
     clothesList = sorted(clothesList, key=lambda x: compatibilityScores[x.guid], reverse=True)
@@ -38,11 +40,12 @@ def getClothing(guid):
 
 class Clothing:
 
-  def __init__(self, name, tags=[], inWardrobe=True, guid=-1):
+  def __init__(self, name, tags=[], inWardrobe=True, guid=-1, usage=0):
     self.name = str(name)
     self.guid = guid
     self.tags = tags
     self.inWardrobe = inWardrobe
+    self.usage = usage
 
   def isInWardrobe(self):
     return self.inWardrobe
