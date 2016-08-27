@@ -3,7 +3,8 @@
   <div class="modal-content">
     <div class="form">
       <div class="form-title" id="form-title"></div>
-      <form action="" method="post" id="clothing-modal-form">
+      <div class="errors" id="form-errors"></div>
+      <form action="" method="post" id="clothing-modal-form" name="clothing-modal" onsubmit="return clothing_modal_form_validate()">
         <div class="form-block">
           <div class="form-input-title">Name:</div>
           <div><input class="form-input-textbox form-input-reg" type="text" name="name" id="name-field" /></div>
@@ -65,6 +66,7 @@
     tf.innerHTML = "<div contenteditable=\"true\" id=\"clothing-modal-tag-input\"></div>";
     var name_field = document.getElementById("name-field");
     name_field.value = "";
+    document.getElementById("form-errors").innerText = "";
   }
   cancel.onclick = resetModal;
 
@@ -105,4 +107,13 @@
       hidden_tag_field.value += editable.innerHTML;
     }
   });
+
+  function clothing_modal_form_validate() {
+    var cloth_name = document.forms["clothing-modal"]["name"].value;
+    if (cloth_name == "") {
+      document.getElementById("form-errors").innerText = "Clothing name cannot be blank."
+      return false;
+    }
+    return true;
+  }
 </script>

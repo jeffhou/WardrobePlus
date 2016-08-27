@@ -277,7 +277,11 @@ input[type=text][name=search]{
   top: 50%;
   transform: translateY(-50%);
 }
-
+#form-errors {
+  font-size: smaller;
+  margin-top: 10px;
+  color: red;
+}
 .view-clothing {
   width: 24%;
   color: #444;
