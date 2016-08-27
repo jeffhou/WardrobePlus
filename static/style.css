@@ -142,8 +142,8 @@
 }
 .clothing.in {
   color: #06B;
-  padding: 0px;
-  width: 173px;
+  padding: 0px 15px;
+  width: auto;
   height: 43px;
 }
 .clothing-name.in, .clothing-name.out {
