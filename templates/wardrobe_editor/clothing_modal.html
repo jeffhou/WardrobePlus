@@ -59,25 +59,19 @@
   });
 
   var cancel = document.getElementById("clothing-modal-cancel");
-  cancel.onclick = function(event) {
-    //reset the modal, there might be an easier way
-    // TODO: extract reset/creation of the modal
+  function resetModal() {
     document.getElementById('clothing-modal').style.display = "none";
     var tf = document.getElementById("tf");
     tf.innerHTML = "<div contenteditable=\"true\" id=\"clothing-modal-tag-input\"></div>";
     var name_field = document.getElementById("name-field");
     name_field.value = "";
   }
+  cancel.onclick = resetModal;
 
   // When the user clicks anywhere outside of the modal, close it
   document.getElementById('clothing-modal').onclick = function(event) {
     if(event.target == this) {
-      this.style.display = "none";
-      var tf = document.getElementById("tf");
-      tf.innerHTML = "<div contenteditable=\"true\" id=\"clothing-modal-tag-input\"></div>";
-      var name_field = document.getElementById("name-field");
-      name_field.value = "";
-      // TODO: clear tags completely, right now that doesn't work
+      resetModal();
     }
   }
   var tf = document.getElementById("tf");
