@@ -123,6 +123,7 @@ def clear_wardrobe():
 
 @app.route('/edit_wardrobe', methods=['GET'])
 def edit_wardrobe():
+  getDB().createTables()
   if 'tag' in request.args: #TODO show "no clothes match search parameters"
     tags = [int(request.args['tag'])]
     if 'selectedTags' in request.args:
