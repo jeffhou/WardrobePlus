@@ -157,7 +157,7 @@ class WardrobeDB:
     return usageDict
 
   def getTags(self):
-    return [(i[0], str(i[1])) for i in self.executeDBCode("SELECT * FROM Tags", True)]
+    return [(i[0], str(i[1])) for i in self.executeDBCode("SELECT * FROM Tags ORDER BY Name", True)]
 
   def delTag(self, tagId):
     self.executeDBCode("DELETE FROM Tags WHERE Id=%s" % (tagId))
