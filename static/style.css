@@ -95,12 +95,16 @@
   margin: 0px 3px 3px;
   height:1em;background-color:none;display:inline-block;vertical-align:top
 }
+#tag-collection {
+  padding-top: 3px;
+  text-align: center;
+}
 .tag {
   vertical-align:top;
   border: 1px solid #48f;
   color: #48f;
   display: inline-block;
-  margin: 0px 3px 0px;
+  margin: 2px 2px;
   padding: 2px 4px;
   border-radius: 7px;
 }
@@ -281,6 +285,13 @@ input[type=text][name=search]{
   font-size: smaller;
   margin-top: 10px;
   color: red;
+}
+#tag-input {
+  width: 100%;
+  border: 1px solid black;
+  padding: 5px;
+  font-size: 16px;
+  font-family: arial;
 }
 .view-clothing {
   width: 24%;

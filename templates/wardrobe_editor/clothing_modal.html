@@ -12,10 +12,9 @@
         <div class="form-block">
           <div class="form-input-title">Tags (comma separated):</div>
           <div>
-            <div id="tf" class="form-input-textbox">
-              <div contenteditable="true" id="clothing-modal-tag-input"></div>
-            </div>
+            <input type="text" name="tag-input" id="tag-input" />
           </div>
+          <div id="tag-collection"></div>
         </div>
         <div style="display: none">
           <input type="text" name="tags" id="hidden-tag-field" value="">
@@ -47,11 +46,10 @@
     if(tagsString != ""){
       var tags = tagsString.split(",");
       for (var i = 0; i < tags.length; i++) {
-        tagsHTML += "<div class=\"tag\" contenteditable=\"false\">" + tags[i] + "<div class='close'>X</div></div>"
+        tagsHTML += "<div class=\"tag\">" + tags[i] + "<div class='close'>X</div></div>"
       }
     }
-
-    $("#tf").html(tagsHTML + "<div contenteditable=\"true\" id=\"clothing-modal-tag-input\"></div>");
+    $("#tag-collection").html(tagsHTML);
 
     var hidden_guid_field = document.getElementById("clothing-modal-guid");
     hidden_guid_field.value = $(this).parent().siblings(".clothing-guid")[0].innerText;
@@ -62,8 +60,8 @@
   var cancel = document.getElementById("clothing-modal-cancel");
   function resetModal() {
     document.getElementById('clothing-modal').style.display = "none";
-    var tf = document.getElementById("tf");
-    tf.innerHTML = "<div contenteditable=\"true\" id=\"clothing-modal-tag-input\"></div>";
+    var tag_input = document.getElementById("tag-input");
+    tag_input.value = "";
     var name_field = document.getElementById("name-field");
     name_field.value = "";
     document.getElementById("form-errors").innerText = "";
@@ -75,36 +73,32 @@
     if(event.target == this) {
       resetModal();
     }
-  }
-  var tf = document.getElementById("tf");
-
-  tf.onkeyup = function(){
-    var tf = document.getElementById("tf");
-    if(tf.innerHTML.indexOf(",") > -1) {
-      var editable = document.getElementById("clothing-modal-tag-input");
-      tf.innerHTML = tf.innerHTML.substring(0, tf.innerHTML.indexOf(editable.outerHTML)) + "<div class=\"tag\" contenteditable=\"false\">" + editable.innerHTML.substring(0, editable.innerHTML.indexOf(",")) + "<div class='close'>X</div></div><div contenteditable=\"true\" id=\"clothing-modal-tag-input\"></div>";
-      editable = document.getElementById("clothing-modal-tag-input");
-      editable.innerHTML = "";
-      tf.children[tf.children.length - 1].focus();
-    }
-  };
-  tf.onclick = function(event){
     if(event.target.className == "close"){
       event.target.parentNode.parentNode.removeChild(event.target.parentNode);
     }
-    var tf = document.getElementById("tf");
-    tf.children[tf.children.length - 1].focus();
+  }
+
+  var tag_input = document.getElementById("tag-input");
+  tag_input.onkeyup = function(){
+    var tag_input = document.getElementById("tag-input");
+    if(tag_input.value.indexOf(",") > -1) {
+      var new_tag_string = tag_input.value.substring(0, tag_input.value.indexOf(","));
+      tag_input.value = "";
+      var tag_collection_div = document.getElementById("tag-collection");
+      tag_collection_div.innerHTML += "<div class=\"tag\">" + new_tag_string + "<div class='close'>X</div></div>";
+    }
   };
+
   $('#clothing-modal-form').submit(function() {
     var hidden_tag_field = document.getElementById("hidden-tag-field");
-    var tags =$('#tf').children().slice(0, $('#tf').children().length - 1);
+    var tags =$("#tag-collection").children();
     for(var i = 0; i < tags.length; i++) {
       var tag = tags[i];
       hidden_tag_field.value += tag.innerText.substring(0, tag.innerText.length - 1) + ",";
     }
-    var editable = document.getElementById("clothing-modal-tag-input");
-    if(editable.innerHTML.length > 0) {
-      hidden_tag_field.value += editable.innerHTML;
+    var tag_input = document.getElementById("tag-input");
+    if(tag_input.value.length > 0) {
+      hidden_tag_field.value += tag_input.value;
     }
   });
 
