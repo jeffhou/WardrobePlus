@@ -259,7 +259,7 @@ input[type=text][name=search]{
   -webkit-font-smoothing: antialiased;
   white-space: nowrap;
 }
-.clothing-name#view-clothing-name {
+#view-clothing-name {
   font-size: 19px;
   border-bottom: 2px solid #444;
   margin-top: 0px;
