@@ -57,7 +57,7 @@ class WardrobeDB:
     if force:
       self.executeDBCode("DROP TABLE IF EXISTS %s" % tableName)
     columns = ", ".join([" ".join(attributePair) for attributePair in tableAttributes])
-    self.executeDBCode("CREATE TABLE %s(Id INTEGER PRIMARY KEY AUTOINCREMENT, %s);" % (tableName, columns))
+    self.executeDBCode("CREATE TABLE IF NOT EXISTS %s(Id INTEGER PRIMARY KEY AUTOINCREMENT, %s);" % (tableName, columns))
 
   # Dependencies: getDB()
   # Usage: TOO MANY
