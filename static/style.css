@@ -14,8 +14,14 @@
   margin: 5px;
 }
 
+.view-block {
+  display: inline-block;
+  width: 50%;
+}
+
 #view-clothing-display {
   margin-top: 15px;
+  text-align: left;
 }
 
 #view-clothing-display-title {
