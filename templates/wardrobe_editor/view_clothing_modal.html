@@ -4,7 +4,12 @@
     <div class="form">
         <div id="view-clothing-name"></div>
         <div id="view-clothing-tags"></div>
-
+        <div id="view-clothing-display">
+          <div id="view-clothing-usage">
+            <div id="view-clothing-display-title">Usage</div>
+            <div id="view-clothing-display-content"></div>
+          </div>
+        </div>
       </div>
   </div>
 </div>
@@ -28,6 +33,19 @@
       tagsHTML += "<div class=\"view-modal-tag\" contenteditable=\"false\">" + tags[i] + "</div>"
     }
     $("#view-clothing-tags").html(tagsHTML);
+
+    var usageWeek = $(this).parent().siblings(".clothing-usage").children(".clothing-usage-week").text();
+    var usageMonth = $(this).parent().siblings(".clothing-usage").children(".clothing-usage-month").text();
+    var usageThreeMonths = $(this).parent().siblings(".clothing-usage").children(".clothing-usage-three-months").text();
+    var usageYear = $(this).parent().siblings(".clothing-usage").children(".clothing-usage-year").text();
+    var usageAllTime = $(this).parent().siblings(".clothing-usage").children(".clothing-usage-all-time").text();
+    var usageHTML = "";
+    usageHTML += "<div class=\"data\"><div class=\"data-name\">Last Week:</div><div class=\"data-value\">" + usageWeek + "</div></div>"
+    usageHTML += "<div class=\"data\"><div class=\"data-name\">Last Month:</div><div class=\"data-value\">" + usageMonth + "</div></div>"
+    usageHTML += "<div class=\"data\"><div class=\"data-name\">Last 3 Months:</div><div class=\"data-value\">" + usageThreeMonths + "</div></div>"
+    usageHTML += "<div class=\"data\"><div class=\"data-name\">Last Year:</div><div class=\"data-value\">" + usageYear + "</div></div>"
+    usageHTML += "<div class=\"data\"><div class=\"data-name\">All Time:</div><div class=\"data-value\">" + usageAllTime + "</div></div>"
+    $("#view-clothing-display-content").html(usageHTML);
     $('#view-modal').css("display", "block");
   })
 </script>

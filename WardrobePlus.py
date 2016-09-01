@@ -25,7 +25,12 @@ def getClothes(sort_=False):
     clothTags = getDB().getTagsByClothId(int(i[0])) #TODO need to recast/retype this variable
     clothInWardrobe = bool(i[2])
     clothGuid = int(i[0])
-    clothUsage = getDB().getUsage(clothGuid)
+    clothUsage = {}
+    clothUsage["week"] = getDB().getUsage(clothGuid, 7)
+    clothUsage["month"] = getDB().getUsage(clothGuid, 30)
+    clothUsage["threemonths"] = getDB().getUsage(clothGuid, 90)
+    clothUsage["year"] = getDB().getUsage(clothGuid, 365)
+    clothUsage["alltime"] = getDB().getUsage(clothGuid)
     clothesList.append(Clothing(clothName, clothTags, clothInWardrobe, clothGuid, clothUsage))
 
   if sort_:
@@ -40,7 +45,7 @@ def getClothing(guid):
 
 class Clothing:
 
-  def __init__(self, name, tags=[], inWardrobe=True, guid=-1, usage=0):
+  def __init__(self, name, tags=[], inWardrobe=True, guid=-1, usage={}):
     self.name = str(name)
     self.guid = guid
     self.tags = tags

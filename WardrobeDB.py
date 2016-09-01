@@ -198,8 +198,11 @@ class WardrobeDB:
   def incrementUsage(self, clothGuid):
     self.insert("ClothesUsage", ["ClothId"], [clothGuid])
 
-  def getUsage(self, clothGuid):
-    return self.executeDBCode("SELECT Count(1) FROM ClothesUsage WHERE ClothId=?;", True, vars=(clothGuid,))[0][0]
+  def getUsage(self, clothGuid, timeRangeInDays=-1):
+    if timeRangeInDays == -1:
+      return self.executeDBCode("SELECT Count(1) FROM ClothesUsage WHERE ClothId=?;", True, vars=(clothGuid,))[0][0]
+    else:
+      return self.executeDBCode("SELECT Count(1) FROM ClothesUsage WHERE ClothId=? AND Timestamp > (SELECT DATETIME('now', '-%s day'));" % (timeRangeInDays), True, vars=(clothGuid,))[0][0]
 
   def createTables(self, reset=False):
     self.createTable("Clothes", [["Name", "TEXT UNIQUE"], ["InWardrobe", "SMALLINT DEFAULT 1"], ["Usage", "INTEGER DEFAULT 0"]], reset)

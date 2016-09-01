@@ -1,3 +1,27 @@
+.data-name {
+  display: inline-block;
+  width: 130px;
+  font-size: small;
+}
+
+.data-value {
+  display: inline-block;
+  font-size: small;
+}
+
+.data {
+  text-align: left;
+  margin: 5px;
+}
+
+#view-clothing-display {
+  margin-top: 15px;
+}
+
+#view-clothing-display-title {
+  text-align: left;
+}
+
 .form .form-title{
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   text-transform: uppercase;
