@@ -5,8 +5,12 @@
   <div id="top-bar">
     {% include 'wardrobe_editor/tag_container.html' %}
     <div id="search">
-      <form>
+      <form action="{{ url_for('edit_wardrobe', selectedTags=selectedTags) }}">
         <input type="text" name="search" placeholder="Search..">
+        {% for i in selectedTags %}
+          <input type="text" name="selectedTags" value="{{ i }}" style="display:none;"/>
+        {% endfor %}
+        <input type="submit" style="display:none;"/>
       </form>
     </div>
   </div>

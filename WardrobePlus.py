@@ -128,6 +128,10 @@ def clear_wardrobe():
 
 @app.route('/edit_wardrobe', methods=['GET'])
 def edit_wardrobe():
+  clothes = getClothes()
+  if 'search' in request.args:
+    clothGuids = getDB().searchClothing(request.args['search'])
+    clothes = filter(lambda x: x.guid in clothGuids, clothes)
   getDB().createTables()
   if 'tag' in request.args: #TODO show "no clothes match search parameters"
     tags = [int(request.args['tag'])]
@@ -147,14 +151,14 @@ def edit_wardrobe():
     selectedTags = [int(i) for i in request.args.getlist('selectedTags')]
     tags = selectedTags
     clothGuids = getDB().getClothesByTagIds(tags)
-    allClothes = getClothes()
+    allClothes = clothes
     filteredClothes = filter(lambda x: x.guid in clothGuids, allClothes)
     tagUsage = getDB().getTagUsage()
     displayTags = filter(lambda x: x[0] in tagUsage and tagUsage[x[0]] > 0, getDB().getTags())
     return render_template('edit_wardrobe.html', clothes=filteredClothes, tags=displayTags, filtered=True, selectedTags=tags)
   tagUsage = getDB().getTagUsage()
   displayTags = filter(lambda x: x[0] in tagUsage and tagUsage[x[0]] > 0, getDB().getTags())
-  return render_template('edit_wardrobe.html', clothes=getClothes(), tags=displayTags, filtered=False)
+  return render_template('edit_wardrobe.html', clothes=clothes, tags=displayTags, filtered=False)
 
 @app.route('/checkout')
 def checkout():
@@ -236,10 +240,11 @@ def add_sample_set():
       samples.append(i + " " + j)
 
   for i in samples:
-    getDB().addCloth(i)
-    guid = getDB().getClothGuidByName(i)
-    getDB().tagCloth(guid, i.split()[0])
-    getDB().tagCloth(guid, i.split()[1])
+    j = i.upper()
+    getDB().addCloth(j)
+    guid = getDB().getClothGuidByName(j)
+    getDB().tagCloth(guid, j.split()[0])
+    getDB().tagCloth(guid, j.split()[1])
   return redirect(url_for("edit_wardrobe"))
 
 if __name__ == '__main__':

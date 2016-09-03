@@ -111,7 +111,7 @@ class WardrobeDB:
       clothName (str): name of cloth
 
     """
-    self.insert("Clothes", ["Name"], ["'%s'" % clothName])
+    self.insert("Clothes", ["Name"], ["'%s'" % clothName.upper()])
 
   # Dependencies: tagExists()
   # Usage: tagCloth()
@@ -197,6 +197,10 @@ class WardrobeDB:
 
   def incrementUsage(self, clothGuid):
     self.insert("ClothesUsage", ["ClothId"], [clothGuid])
+
+  def searchClothing(self, searchString):
+    searchString = "%" + searchString.upper() + "%"
+    return [i[0] for i in self.executeDBCode("SELECT * FROM Clothes WHERE Name LIKE (?)", True, vars=(searchString,))]
 
   def getUsage(self, clothGuid, timeRangeInDays=-1):
     if timeRangeInDays == -1:
