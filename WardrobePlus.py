@@ -17,7 +17,7 @@ def closeDB(error):
   if hasattr(g, 'sqlite_db'):
     g.sqlite_db.closeDB()
 
-def getClothes(sort_=False):
+def getClothes(sortMethod):
   clothes = getDB().getClothesDB()
   clothesList = []
   for i in clothes:
@@ -32,10 +32,13 @@ def getClothes(sort_=False):
     clothUsage["year"] = getDB().getUsage(clothGuid, 365)
     clothUsage["alltime"] = getDB().getUsage(clothGuid)
     clothesList.append(Clothing(clothName, clothTags, clothInWardrobe, clothGuid, clothUsage))
-
-  if sort_:
+  if sortMethod == True:
     compatibilityScores = getCompatibilityScores()
     clothesList = sorted(clothesList, key=lambda x: compatibilityScores[x.guid], reverse=True)
+  elif sortMethod == 'alpha':
+    clothesList = sorted(clothesList, key=lambda x: x.name)
+  elif sortMethod == 'usage':
+    clothesList = sorted(clothesList, key=lambda x: x.usage["alltime"], reverse=True)
   return clothesList
 
 def getClothing(guid):
@@ -128,7 +131,11 @@ def clear_wardrobe():
 
 @app.route('/edit_wardrobe', methods=['GET'])
 def edit_wardrobe():
-  clothes = getClothes()
+  if 'sortby' in request.args:
+    sortMethod = request.args['sortby']
+  else:
+    sortMethod = 'order'
+  clothes = getClothes(sortMethod)
   if 'search' in request.args:
     clothGuids = getDB().searchClothing(request.args['search'])
     clothes = filter(lambda x: x.guid in clothGuids, clothes)
