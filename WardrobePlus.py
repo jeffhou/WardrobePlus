@@ -321,6 +321,6 @@ def add_sample_set():
 
 if __name__ == '__main__':
   port = int(os.environ.get('PORT', 8080))
-  app.config['SERVER_NAME'] = "wardrobeplus.herokuapp.com/"
+  app.config['SERVER_NAME'] = "wardrobeplus.herokuapp.com"
   app.secret_key = APP_SECRET
   app.run('0.0.0.0', debug=True, port=port)
