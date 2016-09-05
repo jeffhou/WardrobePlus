@@ -7,8 +7,8 @@ import inspect, os, requests, json
 from WardrobeDB import WardrobeDB
 
 app = Flask(__name__)
-APP_ID = "1749489575316134"
-APP_SECRET = "f4786883b3148cc00f5d8b303a6102cc"
+APP_ID = os.environ.get("app_id", "1749489575316134")
+APP_SECRET = os.environ.get("app_secret", "f4786883b3148cc00f5d8b303a6102cc")
 
 def getDB():
   if not hasattr(g, 'sqlite_db'):
@@ -321,6 +321,6 @@ def add_sample_set():
 
 if __name__ == '__main__':
   port = int(os.environ.get('PORT', 8080))
-  app.config['SERVER_NAME'] = "wardrobeplus.herokuapp.com"
+  app.config['SERVER_NAME'] = os.environ.get("server_name", "wardrobe-plus-jeffhou.c9users.io")
   app.secret_key = APP_SECRET
   app.run('0.0.0.0', debug=True, port=port)
