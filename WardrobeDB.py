@@ -4,6 +4,9 @@ class WardrobeDB:
   def __init__(self):
     pass
 
+  def setUser(self, user):
+    self.user = user
+
   # Import reqs: sqlite3
   # Usage: getDB()
   def connect_db(self, dbName):
@@ -111,37 +114,37 @@ class WardrobeDB:
       clothName (str): name of cloth
 
     """
-    self.insert("Clothes", ["Name"], ["'%s'" % clothName.upper()])
+    self.insert("Clothes", ["Name", "User"], ["'%s'" % clothName.upper(), "'%s'" % self.user])
 
   # Dependencies: tagExists()
   # Usage: tagCloth()
   def addTag(self, name):
     if not self.tagExists(name):
-      self.insert("Tags", ["Name"], ["'%s'" % name])
+      self.insert("Tags", ["Name", "User"], ["'%s'" % name, "'%s'" % self.user])
 
   # Dependencies: executeDBCode()
   # Usage: addTag()
   def tagExists(self, name):
-    return self.executeDBCode("select exists(select 1 from Tags where Name=?)", True, vars=(name,))[0][0] == 1
+    return self.executeDBCode("select exists(select 1 from Tags where Name=? AND User=?)", True, vars=(name, self.user))[0][0] == 1
 
   def getClothGuidByName(self, clothName):
-    return self.executeDBCode("SELECT * FROM Clothes WHERE Name='%s'" % clothName, True)[0][0]
+    return self.executeDBCode("SELECT * FROM Clothes WHERE Name=? AND User=?", True, vars=(clothName, self.user))[0][0]
 
   def getCloth(self, clothId):
-    return self.executeDBCode("SELECT * FROM Clothes WHERE Id=%s" % (clothId), True)[0]
+    return self.executeDBCode("SELECT * FROM Clothes WHERE Id=%s", True, vars=(clothId,))[0]
 
   def getClothesDB(self, ):
-    return self.executeDBCode("SELECT * FROM Clothes", True)
+    return self.executeDBCode("SELECT * FROM Clothes WHERE User=?", True, vars=(self.user,))
 
   def getClothsByStatus(self, status=True):
     if status:
       inWardrobe = 1
     else:
       inWardrobe = 0
-    return self.executeDBCode("SELECT * FROM Clothes WHERE InWardrobe = %s" % (inWardrobe,), True)
+    return self.executeDBCode("SELECT * FROM Clothes WHERE InWardrobe = %s AND User=?" % (inWardrobe,), True, vars=(self.user,))
 
   def delClothTagAssociations(self, clothId):
-    self.executeDBCode("DELETE FROM ClothesTagsAssociations WHERE ClothId=%s" % (clothId))
+    self.executeDBCode("DELETE FROM ClothesTagsAssociations WHERE ClothId=?", vars=(clothId,))
 
   def delCloth(self, clothId):
     self.executeDBCode("DELETE FROM Clothes WHERE Id=%s" % (clothId))
@@ -157,7 +160,7 @@ class WardrobeDB:
     return usageDict
 
   def getTags(self):
-    return [(i[0], str(i[1])) for i in self.executeDBCode("SELECT * FROM Tags ORDER BY Name", True)]
+    return [(i[0], str(i[1])) for i in self.executeDBCode("SELECT * FROM Tags WHERE User=? ORDER BY Name", True, vars=(self.user,))]
 
   def delTag(self, tagId):
     self.executeDBCode("DELETE FROM Tags WHERE Id=%s" % (tagId))
@@ -168,7 +171,7 @@ class WardrobeDB:
   def tagCloth(self, clothId, tagString):
     tagString = tagString.lower()
     self.addTag(tagString)
-    tagId = self.executeDBCode("SELECT * FROM Tags WHERE Name='%s'" % (tagString), True)[0][0]
+    tagId = self.executeDBCode("SELECT * FROM Tags WHERE Name='%s' AND User=?" % (tagString), True, vars=(self.user,))[0][0]
     self.insert("ClothesTagsAssociations", ["ClothId", "TagId"], [clothId, tagId])
 
   def getTagIdsForCloth(self, clothId):
@@ -178,7 +181,7 @@ class WardrobeDB:
     tagIds = self.getTagIdsForCloth(clothId)
     return [str(i[1]) for i in self.executeDBCode("SELECT * FROM Tags WHERE Id IN (%s)" % ", ".join([str(i) for i in tagIds]), True)]
 
-  def getTagsByClothId(self, clothId):
+  def getTagsByClothId(self, clothId):# TODO: when is this used?
     tagIds = self.getTagIdsForCloth(clothId)
     return [(i[0], str(i[1])) for i in self.executeDBCode("SELECT * FROM Tags WHERE Id IN (%s)" % ", ".join([str(i) for i in tagIds]), True)]
 
@@ -190,7 +193,7 @@ class WardrobeDB:
     self.executeDBCode("UPDATE Clothes SET InWardrobe=%s WHERE Id=%s" % (str(statusID), clothGuid))
 
   def updateAllClothesStatus(self, statusID):
-    self.executeDBCode("UPDATE Clothes SET InWardrobe=?", vars=(statusID,))
+    self.executeDBCode("UPDATE Clothes SET InWardrobe=? WHERE User=?", vars=(statusID, self.user))
 
   def updateClothName(self, clothGuid, clothName):
     self.executeDBCode("UPDATE Clothes SET Name=? WHERE Id=?", vars=(str(clothName), clothGuid))
@@ -200,7 +203,7 @@ class WardrobeDB:
 
   def searchClothing(self, searchString):
     searchString = "%" + searchString.upper() + "%"
-    return [i[0] for i in self.executeDBCode("SELECT * FROM Clothes WHERE Name LIKE (?)", True, vars=(searchString,))]
+    return [i[0] for i in self.executeDBCode("SELECT * FROM Clothes WHERE Name LIKE (?) AND User=?", True, vars=(searchString, self.user))]
 
   def getUsage(self, clothGuid, timeRangeInDays=-1):
     if timeRangeInDays == -1:
@@ -209,8 +212,8 @@ class WardrobeDB:
       return self.executeDBCode("SELECT Count(1) FROM ClothesUsage WHERE ClothId=? AND Timestamp > (SELECT DATETIME('now', '-%s day'));" % (timeRangeInDays), True, vars=(clothGuid,))[0][0]
 
   def createTables(self, reset=False):
-    self.createTable("Clothes", [["Name", "TEXT UNIQUE"], ["InWardrobe", "SMALLINT DEFAULT 1"], ["Usage", "INTEGER DEFAULT 0"]], reset)
-    self.createTable("ClothCompatibilityUsage", [["ClothId1", "INTEGER"], ["ClothId2", "INTEGER"], ["Usage", "INT DEFAULT 1"], ["UNIQUE(ClothId1, ClothId2)", "ON CONFLICT IGNORE"]], reset)
-    self.createTable("Tags", [["Name", "TEXT UNIQUE"]], reset)
+    self.createTable("Clothes", [["Name", "TEXT"], ["InWardrobe", "SMALLINT DEFAULT 1"], ["Usage", "INTEGER DEFAULT 0"], ["User", "TEXT"], ["UNIQUE(Name, User)", "ON CONFLICT IGNORE"]], reset)
+    self.createTable("ClothCompatibilityUsage", [["ClothId1", "INTEGER"], ["ClothId2", "INTEGER"], ["Usage", "INT DEFAULT 1"], ["User", "TEXT"], ["UNIQUE(ClothId1, ClothId2)", "ON CONFLICT IGNORE"]], reset)
+    self.createTable("Tags", [["Name", "TEXT"], ["User", "TEXT"], ["UNIQUE(Name, User)", "ON CONFLICT IGNORE"]], reset)
     self.createTable("ClothesTagsAssociations", [["ClothId", "INTEGER"], ["TagId", "INTEGER"], ["UNIQUE(ClothId, TagId)", "ON CONFLICT IGNORE"]], reset)
-    self.createTable("ClothesUsage", [["ClothId", "INTEGER"], ["Timestamp", "DATETIME DEFAULT CURRENT_TIMESTAMP"]], reset)
+    self.createTable("ClothesUsage", [["ClothId", "INTEGER"], ["Timestamp", "DATETIME DEFAULT CURRENT_TIMESTAMP"], ["User", "TEXT"]], reset)

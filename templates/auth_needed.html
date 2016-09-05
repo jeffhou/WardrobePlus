@@ -4,7 +4,6 @@
     border-radius: 30px;
     display: inline-block;
     margin-bottom: 10px;
-    width: 145px;
     margin-left: auto;
     margin-right: auto;
     padding: 10px 15px;
@@ -28,14 +27,6 @@
   }
 </style>
 <div style="text-align: center; position: relative; top: 50%; transform: translateY(-50%);">
-  <div id="logo" style="
-    font-size: medium;
-    font-weight: 100;
-    padding: 0px;
-    margin-bottom: 0px;
-    text-transform: none;
-">Welcome back, {{ name }}.</div>
   <div id="logo">WARDROBE PLUS</div>
-  <div><a href="{{ url_for("use_wardrobe") }}">Dressing Room</a></div>
-  <div><a href="{{ url_for("edit_wardrobe") }}">Wardrobe Edit</a></div>
+  <div><a href="{{ url_for("fbAuthCallback") }}">Log in with Facebook</a></div>
 </div>

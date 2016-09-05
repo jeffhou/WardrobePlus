@@ -1,15 +1,20 @@
 # Documentation seen in this file was created based on recommendations from
 # http://docs.python-guide.org/en/latest/writing/documentation/
 
-from flask import Flask, render_template, redirect, url_for, request, g
-import inspect, os
+from flask import Flask, render_template, redirect, url_for, request, g, session
+from functools import wraps
+import inspect, os, requests, json
 from WardrobeDB import WardrobeDB
 
 app = Flask(__name__)
+APP_ID = "1749489575316134"
+APP_SECRET = "f4786883b3148cc00f5d8b303a6102cc"
 
 def getDB():
   if not hasattr(g, 'sqlite_db'):
     g.sqlite_db = WardrobeDB()
+    user = getSessionTokenStatus()["user"]
+    g.sqlite_db.setUser(user)
   return g.sqlite_db
 
 @app.teardown_appcontext
@@ -105,28 +110,42 @@ def incrementAllUsageStats():
   for i in clothesIds:
     getDB().incrementUsage(i)
 
+def req_auth(f):
+  @wraps(f)
+  def decorated_function(*args, **kwargs):
+    sessionTokenStatus = getSessionTokenStatus()
+    if not sessionTokenStatus["valid"]:
+      return render_template("auth_needed.html")
+    return f(*args, **kwargs)
+  return decorated_function
+
 @app.route('/')
+@req_auth
 def index():
   getDB().createTables()
-  return render_template('landing_menu.html')
+  return render_template('landing_menu.html', name=getCurrentUserFirstName())
 
 @app.route('/save_changes')
+@req_auth
 def save_changes():
   incrementAllCompatibility()
   incrementAllUsageStats()
   return redirect(url_for('edit_wardrobe'))
 
 @app.route('/return_all')
+@req_auth
 def return_all():
   getDB().updateAllClothesStatus(1)
   return redirect(url_for('use_wardrobe'))
 
 @app.route('/clear_wardrobe')
+@req_auth
 def clear_wardrobe():
   getDB().createTables(True)
   return redirect(url_for('edit_wardrobe'))
 
 @app.route('/edit_wardrobe', methods=['GET'])
+@req_auth
 def edit_wardrobe():
   clothes = getClothes()
   if 'search' in request.args:
@@ -161,6 +180,7 @@ def edit_wardrobe():
   return render_template('edit_wardrobe.html', clothes=clothes, tags=displayTags, filtered=False)
 
 @app.route('/checkout')
+@req_auth
 def checkout():
   if 'clothingGUID' in request.args:
     clothingGUID = int(request.args['clothingGUID'])
@@ -168,6 +188,7 @@ def checkout():
   return redirect(url_for('use_wardrobe'))
 
 @app.route('/checkin')
+@req_auth
 def checkin():
   if 'clothingGUID' in request.args:
     clothingGUID = int(request.args['clothingGUID'])
@@ -175,6 +196,7 @@ def checkin():
   return redirect(url_for('use_wardrobe'))
 
 @app.route('/use_wardrobe')
+@req_auth
 def use_wardrobe():
   if 'tag' in request.args: #TODO show "no clothes match search parameters"
     tags = [int(request.args['tag'])]
@@ -204,6 +226,7 @@ def use_wardrobe():
   return render_template('use_wardrobe.html', clothes=getClothes(True), tags=displayTags, filtered=False)
 
 @app.route('/new_clothing', methods=['POST'])
+@req_auth
 def new_clothing():
   clothing_name = request.form['name']
   clothing_tags = filter(lambda x: len(x) > 0, str(request.form['tags']).split(","))
@@ -214,6 +237,7 @@ def new_clothing():
   return redirect(url_for("edit_wardrobe"))
 
 @app.route('/edit_clothing', methods=['POST'])
+@req_auth
 def edit_clothing():
   clothing_name = request.form['name'] # TODO: should be alphanumeric and maybe also double quotes + spaces
   clothing_guid = int(request.form['guid']) # TODO: validate
@@ -226,11 +250,59 @@ def edit_clothing():
   return redirect(url_for("edit_wardrobe"))
 
 @app.route('/delete_cloth/<int:id>')
+@req_auth
 def delete_cloth(id):
   getDB().delCloth(id)
   return redirect(url_for("edit_wardrobe"))
 
+def fbAuth():
+  requestURL = "https://www.facebook.com/dialog/oauth?client_id=%s&redirect_uri=%s" % (APP_ID, url_for("fbAuthCallback", _external=True))
+  return redirect(requestURL)
+
+def getAppAccessToken():
+  return str(json.loads(requests.get('https://graph.facebook.com/v2.3/oauth/access_token?'+
+    'client_id=%s&client_secret=%s&grant_type=client_credentials' % (APP_ID, APP_SECRET)
+    ).content)["access_token"])
+
+@app.route('/fbAuthCallback')
+def fbAuthCallback():
+  if "code" in request.args:
+    access_token = json.loads(requests.get(
+      "https://graph.facebook.com/v2.3/oauth/access_token?" +
+      "client_id=%s&" % (APP_ID,) +
+      "redirect_uri=%s&" % (url_for("fbAuthCallback", _external=True),) +
+      "client_secret=%s&" % (APP_SECRET,) +
+      "code=%s" % (request.args["code"],)
+      ).content)
+    session['token'] = str(access_token["access_token"])
+    return redirect(url_for("index"))
+  return fbAuth()
+
+def getSessionTokenStatus():
+  if 'token' in session:
+    token_status = json.loads(requests.get(
+      "https://graph.facebook.com/debug_token?" +
+      "input_token=%s&" % (session['token'],) +
+      "&access_token=%s&" % (getAppAccessToken(),)
+      ).content)
+    status = {}
+    status["user"] = token_status["data"]["user_id"]
+    status["valid"] = token_status["data"]["is_valid"]
+    return status
+  else:
+    return {"valid": False}
+
+def getCurrentUserName():
+  sessionStatus = getSessionTokenStatus()
+  if sessionStatus['valid']:
+    return str(json.loads(requests.get("https://graph.facebook.com/v2.7/%s?access_token=%s" % (sessionStatus['user'], getAppAccessToken())).content)["name"])
+  return None
+
+def getCurrentUserFirstName():
+  return getCurrentUserName().split()[0]
+
 @app.route('/add_sample_set')
+@req_auth
 def add_sample_set():
   colors = ["Coral", "Black", "White", "Pink", "Blue", "Canary"]
   styles = ["Shirt", "Pants", "OCBD", "Jacket", "Tie", "Hat"]
@@ -249,4 +321,6 @@ def add_sample_set():
 
 if __name__ == '__main__':
   port = int(os.environ.get('PORT', 8080))
+  app.config['SERVER_NAME'] = "wardrobe-plus-jeffhou.c9users.io"
+  app.secret_key = APP_SECRET
   app.run('0.0.0.0', debug=True, port=port)
