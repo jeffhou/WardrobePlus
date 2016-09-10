@@ -137,12 +137,11 @@
 
 .clothing.out {
   color: #F09;
-  padding: 0px;
-  width: 173px;
-  height: 43px;
 }
 .clothing.in {
   color: #06B;
+}
+.clothing.in, .clothing.out {
   padding: 0px 15px;
   width: auto;
   height: 43px;
