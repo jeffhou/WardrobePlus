@@ -230,8 +230,7 @@ def use_wardrobe():
 def new_clothing():
   clothing_name = request.form['name']
   clothing_tags = filter(lambda x: len(x) > 0, str(request.form['tags']).split(","))
-  getDB().addCloth(clothing_name)#todo show status if cloth already exists
-  newClothGuid = getDB().getClothGuidByName(clothing_name)
+  newClothGuid = getDB().addCloth(clothing_name)#todo show status if cloth already exists
   for i in clothing_tags:
     getDB().tagCloth(newClothGuid, i)
   return redirect(url_for("edit_wardrobe"))
@@ -318,8 +317,7 @@ def add_sample_set():
 
   for i in samples:
     j = i.upper()
-    getDB().addCloth(j)
-    guid = getDB().getClothGuidByName(j)
+    guid = getDB().addCloth(j)
     getDB().tagCloth(guid, j.split()[0])
     getDB().tagCloth(guid, j.split()[1])
   return redirect(url_for("edit_wardrobe"))

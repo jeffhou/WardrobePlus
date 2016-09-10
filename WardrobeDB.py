@@ -85,6 +85,8 @@ class WardrobeDB:
           cursor.execute(dbCode, vars)
         if returnsValues:
           return cursor.fetchall()
+        else:
+          return cursor.lastrowid
       except Exception as e:
         print "EXCEPT (%s): " % (dbCode,) + str(e)
 
@@ -103,7 +105,7 @@ class WardrobeDB:
     """
     keysString = ",".join([str(i) for i in keys])
     valuesString = ",".join([str(i) for i in values])
-    self.executeDBCode("INSERT INTO %s(%s) VALUES(%s)" % (table, keysString, valuesString))
+    return self.executeDBCode("INSERT INTO %s(%s) VALUES(%s)" % (table, keysString, valuesString))
 
   # Dependencies: insert()
   # Usage: new_clothing(), add_sample_set()
@@ -114,7 +116,7 @@ class WardrobeDB:
       clothName (str): name of cloth
 
     """
-    self.insert("Clothes", ["Name", "User"], ["'%s'" % clothName.upper(), "'%s'" % self.user])
+    return self.insert("Clothes", ["Name", "User"], ["'%s'" % clothName.upper(), "'%s'" % self.user])
 
   # Dependencies: tagExists()
   # Usage: tagCloth()
@@ -126,9 +128,6 @@ class WardrobeDB:
   # Usage: addTag()
   def tagExists(self, name):
     return self.executeDBCode("select exists(select 1 from Tags where Name=? AND User=?)", True, vars=(name, self.user))[0][0] == 1
-
-  def getClothGuidByName(self, clothName):
-    return self.executeDBCode("SELECT * FROM Clothes WHERE Name=? AND User=?", True, vars=(clothName, self.user))[0][0]
 
   def getCloth(self, clothId):
     return self.executeDBCode("SELECT * FROM Clothes WHERE Id=%s", True, vars=(clothId,))[0]
