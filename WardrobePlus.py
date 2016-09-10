@@ -7,8 +7,8 @@ import inspect, os, requests, json
 from WardrobeDB import WardrobeDB
 
 app = Flask(__name__)
-APP_ID = os.environ.get("app_id", "1749489575316134")
-APP_SECRET = os.environ.get("app_secret", "f4786883b3148cc00f5d8b303a6102cc")
+APP_ID = os.environ.get("app_id", "1749612118637213")
+APP_SECRET = os.environ.get("app_secret", "194cf8a3575a0f27e695a876b3288a24")
 
 def getDB():
   if not hasattr(g, 'sqlite_db'):
@@ -300,6 +300,11 @@ def getCurrentUserName():
 
 def getCurrentUserFirstName():
   return getCurrentUserName().split()[0]
+
+@app.route('/logout')
+def logout():
+  session.pop('token')
+  return redirect(url_for('index'))
 
 @app.route('/add_sample_set')
 @req_auth
